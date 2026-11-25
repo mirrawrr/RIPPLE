@@ -170,7 +170,7 @@ Rules that apply to every task:
     - **Validates: Requirements 6.1 to 6.4, 6.10, 18.4**
     - Prerequisites: 4.3.
 
-  - [ ] 4.6 Create shared fast-check generators
+  - [x] 4.6 Create shared fast-check generators
     - In `tests/generators.ts`, define reusable arbitraries: magnitude (0-100), duration (1-365), scope, `FlowInput` (per-day and per-year branches with `periodDayCount`), `DependencyShareInput`, valid and invalid numeric strings, dataset records, date pairs.
     - Prerequisites: 1.1.
     - _Requirements: 18.2, 18.3_
