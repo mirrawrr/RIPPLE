@@ -1,0 +1,46 @@
+# IMPORTANT: the .kiro directory (specs, hooks, steering) MUST stay tracked.
+# Never add a rule that matches .kiro or anything inside it
+# (no broad patterns such as ".*", ".k*" or "*.md").
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+*.local
+
+# Environment files (keep the example)
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Test output and caches
+coverage/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+node_modules/.vite/
+node_modules/.vitest/
+
+# Cloudflare local state
+.wrangler/
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
