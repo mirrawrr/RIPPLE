@@ -23,7 +23,7 @@ Rules that apply to every task:
 
 ## Tasks
 
-- [ ] 1. Phase 1 - Project foundation and tooling
+- [x] 1. Phase 1 - Project foundation and tooling
   - [x] 1.1 Scaffold the Vite + React + TypeScript project
     - Create the Vite project with strict TypeScript, React Router, Zod, maplibre-gl, Vitest, fast-check, Playwright and `@axe-core/playwright` as dependencies, with `npm run` scripts for `dev`, `build`, `test` (single run) and `test:e2e`.
     - Create the folder layout: `src/{config,data,domain,engine,state,components,views}`, `tests/{properties,e2e}`, `scripts/`, `docs/`, `public/data/`.
@@ -40,14 +40,14 @@ Rules that apply to every task:
     - _Requirements: 19.1, 19.4_
     - _Design: Static Deployment and Routing (repository structure note)_
 
-  - [ ] 1.3 Create the shared constants and exact-copy module
+  - [x] 1.3 Create the shared constants and exact-copy module
     - Create `src/config/constants.ts` exporting: scenario defaults (25, 7, `both`) and ranges (0-100, 1-365), `STALE_THRESHOLD_MONTHS = 12`, `TOP_N_EXPOSURE = 5`, and the exact strings Reference_Statement, Scenario_Exposure_Disclaimer, Older_Period_Notice, Qualitative_Label, tagline, and the Class_Label names.
     - Acceptance: every exact string matches the requirements glossary character for character; no other module hard-codes these strings.
     - Prerequisites: 1.1.
     - _Requirements: 2.1, 5.1, 5.2, 5.3, 12.5, 12.9, 12.10, 8.2_
     - _Design: Architecture (stale threshold), Cross-view consistency and content rules_
 
-  - [-] 1.4 Initialise Git and publish the public GitHub repository early
+  - [x] 1.4 Initialise Git and publish the public GitHub repository early
     - Run `git init` (if not already a repository) and confirm that `.gitignore` does not ignore `.kiro` or `.kiro/specs/` (`git check-ignore -v` on `requirements.md`, `design.md` and `tasks.md` returns nothing).
     - Make an early first commit containing the `.kiro` specifications, the MIT `LICENSE` and `.gitignore` (plus the scaffold from 1.1).
     - Create the public GitHub repository, add the remote and push. The developer performs any authentication.
