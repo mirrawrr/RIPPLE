@@ -9,6 +9,24 @@ export type CommodityId = 'oil' | 'lng';
 /** Commodity_Scope URL values (Req 6.10). */
 export type CommodityScope = CommodityId | 'both';
 
+/** Accepted Commodity_Scope values (Req 6.10). Canonical list. */
+export const COMMODITY_SCOPES = ['oil', 'lng', 'both'] as const satisfies readonly CommodityScope[];
+
+// Compile-time check: every CommodityScope member appears in COMMODITY_SCOPES.
+type _ScopesCoverType = CommodityScope extends (typeof COMMODITY_SCOPES)[number] ? true : never;
+const _scopesCoverType: _ScopesCoverType = true;
+void _scopesCoverType;
+
+/** Control labels, verbatim from Requirement 5 criteria 1 and 2 (plus scope label). */
+export const CONTROL_LABELS = {
+  magnitudePercent: 'Hypothetical percentage reduction in baseline transit flow',
+  durationDays: 'Hypothetical duration (days)',
+  commodityScope: 'Commodity scope',
+} as const;
+
+/** Error shown for an invalid Commodity_Scope (Req 6.10). */
+export const COMMODITY_SCOPE_ERROR_MESSAGE = 'Commodity scope must be one of oil, lng or both.';
+
 /** Scenario defaults (Req 5.1, 5.2, 5.3, 5.7). */
 export const SCENARIO_DEFAULTS = {
   magnitudePercent: 25,

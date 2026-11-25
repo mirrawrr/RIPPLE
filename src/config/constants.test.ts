@@ -3,6 +3,9 @@ import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   CLASS_LABELS,
+  COMMODITY_SCOPES,
+  COMMODITY_SCOPE_ERROR_MESSAGE,
+  CONTROL_LABELS,
   DURATION_RANGE,
   MAGNITUDE_RANGE,
   OLDER_PERIOD_NOTICE,
@@ -40,6 +43,35 @@ const exactStrings: Record<string, [string, string]> = {
     'Qualitative documented dependency - not quantified',
   ],
 };
+
+const scanStrings: Record<string, string> = {
+  ...Object.fromEntries(Object.entries(exactStrings).map(([k, [a]]) => [k, a])),
+  CONTROL_LABEL_MAGNITUDE: CONTROL_LABELS.magnitudePercent,
+  CONTROL_LABEL_DURATION: CONTROL_LABELS.durationDays,
+  COMMODITY_SCOPE_ERROR_MESSAGE,
+};
+
+describe('scenario control constants', () => {
+  it('COMMODITY_SCOPES is exactly oil, lng, both', () => {
+    expect([...COMMODITY_SCOPES]).toEqual(['oil', 'lng', 'both']);
+  });
+
+  it('numeric control labels equal their literals and appear verbatim in requirements.md', () => {
+    expect(CONTROL_LABELS.magnitudePercent).toBe(
+      'Hypothetical percentage reduction in baseline transit flow',
+    );
+    expect(CONTROL_LABELS.durationDays).toBe('Hypothetical duration (days)');
+    expect(requirements).toContain(CONTROL_LABELS.magnitudePercent);
+    expect(requirements).toContain(CONTROL_LABELS.durationDays);
+  });
+
+  it('commodity scope label and error message equal their literals', () => {
+    expect(CONTROL_LABELS.commodityScope).toBe('Commodity scope');
+    expect(COMMODITY_SCOPE_ERROR_MESSAGE).toBe(
+      'Commodity scope must be one of oil, lng or both.',
+    );
+  });
+});
 
 describe('numeric constants', () => {
   it('has the specified defaults', () => {
@@ -105,7 +137,7 @@ describe('no hard-coded copies', () => {
     const offenders: string[] = [];
     for (const f of files) {
       const text = readFileSync(f, 'utf8');
-      for (const [name, [actual]] of Object.entries(exactStrings)) {
+      for (const [name, actual] of Object.entries(scanStrings)) {
         if (text.includes(actual)) offenders.push(`${f}: ${name}`);
       }
     }
