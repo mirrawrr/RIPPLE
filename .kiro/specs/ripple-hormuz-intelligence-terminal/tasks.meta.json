@@ -50,6 +50,28 @@
         "chatSessionId": "sess_714b93a1-26d7-4afb-a455-658a18f3575a",
         "timestamp": 1795637815315
       }
+    ],
+    "2.1 Implement the Zod dataset schemas": [
+      {
+        "executionId": "e7f46f8d-10f7-49a7-94ba-32c6f360174a",
+        "chatSessionId": "sess_714b93a1-26d7-4afb-a455-658a18f3575a",
+        "timestamp": 1795638027304
+      },
+      {
+        "executionId": "e7f46f8d-10f7-49a7-94ba-32c6f360174a",
+        "chatSessionId": "sess_714b93a1-26d7-4afb-a455-658a18f3575a",
+        "timestamp": 1795638227320
+      },
+      {
+        "executionId": "28e7629a-39e5-416e-95bb-5f74d3734493",
+        "chatSessionId": "sess_714b93a1-26d7-4afb-a455-658a18f3575a",
+        "timestamp": 1795638539220
+      },
+      {
+        "executionId": "28e7629a-39e5-416e-95bb-5f74d3734493",
+        "chatSessionId": "sess_714b93a1-26d7-4afb-a455-658a18f3575a",
+        "timestamp": 1795638721791
+      }
     ]
   }
 }

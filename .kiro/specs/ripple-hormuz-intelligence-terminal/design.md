@@ -250,10 +250,10 @@ const HistoricalObservationSchema = z.object({
   referencePeriodStart: z.string().date(),
   referencePeriodEnd: z.string().date(),
   periodDayCount: z.object({
-    days: z.union([z.literal(365), z.literal(366)]).or(z.number().int().positive()),
-    referenceYear: z.number().int().optional(),
+    days: z.number().int().safe().min(1),  // positive integer, no upper limit; never inferred or defaulted
+    referenceYear: z.number().int().optional(), // when present, days must be 365 or 366 matching leap-year status
     isLeapYear: z.boolean().optional(),
-  }).optional(), // required by build-time check when timeBasis === 'per-year'
+  }).strict().optional(), // required when timeBasis === 'per-year' (enforced by the implemented schema)
   sourceRecordIds: z.array(z.string()).min(1),
 });
 
@@ -305,17 +305,32 @@ const GraphEdgeSchema = z.object({
   sourceRecordIds: z.array(z.string()).min(1),
 });
 
+// Declaration records: the stable ids that every other record references. All strict.
+// Commodity declarations carry no mandatory standard unit (each observation carries its own unit).
+// Economy declarations carry no country code at this stage.
+const DatasetDeclarationSchema = z.object({ id: DatasetId, name: z.string().min(1), description: z.string().min(1).optional() }).strict();
+const ChokepointDeclarationSchema = z.object({ id: ChokepointId, name: z.string().min(1), description: z.string().min(1).optional() }).strict();
+const CommodityDeclarationSchema = z.object({ id: CommodityId, name: z.string().min(1), description: z.string().min(1).optional() }).strict();
+const EconomyDeclarationSchema = z.object({ id: EconomyId, name: z.string().min(1), description: z.string().min(1).optional() }).strict();
+
+// All dataset record schemas above and below are strict: unknown keys are rejected.
 const CuratedDatasetSchema = z.object({
   schemaVersion: z.string(),
   buildDate: z.string().date(),
+  datasets: z.array(DatasetDeclarationSchema),       // required collection; may be empty
+  chokepoints: z.array(ChokepointDeclarationSchema), // required collection; may be empty
+  commodities: z.array(CommodityDeclarationSchema),  // required collection; may be empty
+  economies: z.array(EconomyDeclarationSchema),      // required collection; may be empty
   sourceRecords: z.array(SourceRecordSchema),
   historicalObservations: z.array(HistoricalObservationSchema),
   dependencyShares: z.array(DependencyShareSchema),
   qualitativeDependencies: z.array(QualitativeDependencySchema),
   graphNodes: z.array(z.object({ id: z.string(), type: z.enum(['transport','commodity','industry','economy']), name: z.string() })),
   graphEdges: z.array(GraphEdgeSchema),
-});
+}).strict();
 ```
+
+In the implemented `src/data/schema.ts` the schemas are written with `z.strictObject`, which has the same effect as `.strict()` shown in this sketch.
 
 ### Component responsibilities
 
@@ -346,6 +361,7 @@ erDiagram
     SOURCE_RECORD ||--o{ DEPENDENCY_SHARE : supports
     SOURCE_RECORD ||--o{ QUALITATIVE_DEPENDENCY : supports
     SOURCE_RECORD ||--o{ GRAPH_EDGE : supports
+    DATASET ||--o{ HISTORICAL_OBSERVATION : "declares id for"
     CHOKEPOINT ||--o{ HISTORICAL_OBSERVATION : "baseline flow for"
     COMMODITY ||--o{ HISTORICAL_OBSERVATION : "flow of"
     COMMODITY ||--o{ DEPENDENCY_SHARE : "share of"
@@ -353,6 +369,26 @@ erDiagram
     ECONOMY ||--o{ QUALITATIVE_DEPENDENCY : "importer in"
     GRAPH_NODE ||--o{ GRAPH_EDGE : "source/target"
 
+    DATASET {
+        string id
+        string name
+        string description
+    }
+    CHOKEPOINT {
+        string id
+        string name
+        string description
+    }
+    COMMODITY {
+        string id
+        string name
+        string description
+    }
+    ECONOMY {
+        string id
+        string name
+        string description
+    }
     SOURCE_RECORD {
         string id
         string publisher
@@ -409,6 +445,10 @@ erDiagram
 ```
 /public/data/
   schema-version.json        # { schemaVersion, buildDate }
+  datasets.json              # declarations
+  chokepoints.json           # declarations
+  commodities.json           # declarations
+  economies.json             # declarations
   source-records.json
   historical-observations.json
   dependency-shares.json
@@ -427,16 +467,30 @@ In this design "verified" means the figure's value, unit and reference period we
 
 All identifiers use the branded types `DatasetId`, `ChokepointId`, `CommodityId`, `EconomyId`, `SourceRecordId`, and graph node/edge ids. Every `HistoricalObservation`, `DependencyShare`, `QualitativeDependency` and `GraphEdge` carries `datasetId`, `verificationStatus` (except edges, which inherit it from their source records) and `sourceRecordIds`. Observations and shares carry a reference period (start/end dates); per-year observations also carry `periodDayCount`.
 
+**Declaration collections.** The dataset holds four required collections (they may be empty arrays): `datasets`, `chokepoints`, `commodities` and `economies`. Each entry is a strict `DatasetDeclaration`, `ChokepointDeclaration`, `CommodityDeclaration` or `EconomyDeclaration`, with a typed (branded) identifier (`DatasetId`, `ChokepointId`, the dataset commodity id, `EconomyId`), a required `name` and an optional `description`. Every id used by another record must resolve to an entry in the matching collection. Commodity declarations carry no mandatory standard unit, because each observation carries its own unit. Economy declarations carry no country code at this stage.
+
+**Two commodity id types.** The dataset commodity id (`DatasetCommodityId` in `src/data/schema.ts`, shown as `CommodityId` in the sketch above) is a generic branded string so a new commodity is additive. It is kept separate from the fixed MVP scenario type `CommodityId = 'oil' | 'lng'` in `src/config/constants.ts`. The mapping between the two happens at dataset load time (a later task).
+
+**Strictness.** All dataset record and declaration schemas are strict and reject unknown keys.
+
+### Period_Day_Count rules
+
+- `days` is a positive integer with no upper limit. Values above 366 are valid for verified non-calendar reporting periods, such as a multi-year period.
+- When `referenceYear` is present (a calendar year), `days` must be exactly 365 or 366 matching the leap-year status of that year, and `isLeapYear`, if present, must agree.
+- The day count is never inferred or defaulted. It is a verified figure taken from the source.
+- Period_Day_Count is not required to equal the inclusive calendar span of the reference period. The count must match the source's actual reporting coverage. The basis for the chosen count (for example a source statement, table note or page reference) is recorded during source verification in `docs/data-verification-log.md`.
+- A check that `days` equals the inclusive date-range span applies only to records where the source explicitly confirms full daily coverage of that interval. How such records are marked (for example an optional explicit flag) is decided when the validator is implemented. The current schema does not change for this.
+
 ### Build-time validation pipeline
 
 1. Load all dataset files.
 2. Validate each against its Zod schema → structural errors (missing/invalid field, wrong type) fail the build with record id + field name (Req 4.11, 4.3).
 3. Cross-record checks (not expressible in a single-record schema), run after structural validation:
    - Every `sourceRecordIds` reference resolves to an existing `SourceRecord` with `verificationStatus === 'verified'` (Req 4.3).
-   - Every per-year `HistoricalObservation` has a `periodDayCount`; for a calendar-year reference period, `days` matches the leap-year status of `referenceYear` (Req 4.14).
+   - Every per-year `HistoricalObservation` has a `periodDayCount`; for a calendar-year reference period, `days` matches the leap-year status of `referenceYear` (Req 4.14). For other periods, `days` is checked against the source's verified coverage as recorded in `docs/data-verification-log.md`, not against the calendar span, except where the source confirms full daily coverage.
    - Every `GraphEdge.sourceNodeId`/`targetNodeId` resolves to an existing `GraphNode`, and has at least one source record (Req 9.3).
    - No publication/retrieval date is later than `buildDate`; every `referencePeriodEnd >= referencePeriodStart` (Req 4.11).
-   - Every `chokepointId`, `commodityId`, `economyId` and `datasetId` used by an observation, share, qualitative dependency or graph node resolves to a declared entry; every record's `verificationStatus` is `'verified'` (Req 4.3).
+   - Every `chokepointId`, `commodityId`, `economyId` and `datasetId` used by an observation, share, qualitative dependency or graph node resolves to a declared entry in the `datasets`, `chokepoints`, `commodities` or `economies` collection respectively; every record's `verificationStatus` is `'verified'` (Req 4.3).
    - No `QualitativeDependency` contains a numeric field (the strict schema rejects extra keys), and no (economy, commodity, chokepoint) combination appears in both `dependencyShares` and `qualitativeDependencies` (Req 4.7, 4.8).
 4. On any failure: non-zero exit, one line per violation naming record id + field, no `dist/` output written.
 5. On success: files are copied as-is into the Vite `public/` output (no transformation, so runtime and build-time schemas stay identical).
@@ -704,7 +758,7 @@ Properties 14 to 16 are implemented with the features they test (ranking with th
 | 1. Application Shell and Navigation | Architecture (Routing), Component tree (`AppShell`, `NavigationBar`), Data flow (view switch, URL sync), Static Deployment and Routing (direct links, query parameters, loop prevention, unknown route), Error Handling (unknown route) |
 | 2. Overview View | Component responsibilities (`OverviewView`), Error Handling (missing field) |
 | 3. Interactive Geographic Map | Architecture (MapLibre/basemap), Component tree (`MapComponent`, `FeatureDetailCard`, `MapTextAlternative`), Accessibility (map keyboard), Basemap provider selection and map completion gate, Error Handling (tile/WebGL failure) |
-| 4. Data Sources and Verification | Data Models (typed dataset schemas, meaning of "verified", identifier and reference model, build-time validation pipeline), Error Handling (build-time rows), Correctness Property 17 |
+| 4. Data Sources and Verification | Data Models (typed dataset schemas, declaration collections, Period_Day_Count rules, meaning of "verified", identifier and reference model, build-time validation pipeline), Error Handling (build-time rows), Correctness Property 17 |
 | 5. Scenario Parameter Controls | Component responsibilities (`ScenarioControls`), Key module interfaces (`ActiveScenario`) |
 | 6. Scenario Input Validation | Key module interfaces (`validateIntegerInRange`, URL codec), Correctness Properties 12–13, Error Handling (control/URL rejection) |
 | 7. Transparent Deterministic Calculations | Key module interfaces (`Scenario_Engine`), Correctness Properties 1–11, Error Handling (engine rows) |

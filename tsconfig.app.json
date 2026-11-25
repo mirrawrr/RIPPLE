@@ -17,5 +17,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "tests/properties"]
+  "include": ["src", "tests/properties", "tests/schema", "tests/fixtures"]
 }

@@ -58,7 +58,7 @@ Rules that apply to every task:
     - _Design: Static Deployment and Routing (repository structure note)_
 
 - [ ] 2. Phase 1 - Dataset schemas and validation pipeline
-  - [ ] 2.1 Implement the Zod dataset schemas
+  - [x] 2.1 Implement the Zod dataset schemas
     - In `src/data/schema.ts`, implement the schemas from the design: branded ids, `SourceRecordSchema`, `HistoricalObservationSchema`, `DependencyShareSchema`, strict `QualitativeDependencySchema`, `GraphEdgeSchema`, graph nodes, `CuratedDatasetSchema`, and the schema-version file schema. Export inferred TypeScript types.
     - Acceptance: types compile; a qualitative record with an extra numeric key is rejected by the strict schema.
     - Prerequisites: 1.1.
