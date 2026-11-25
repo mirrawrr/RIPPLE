@@ -95,7 +95,7 @@ Rules that apply to every task:
     - _Design: DatasetProvider, Data flow summary, Error Handling_
 
 - [ ] 3. Phase 1 - Source licensing and verified data (MANDATORY, developer-verified)
-  - [ ] 3.1 Source and licence review (mandatory)
+  - [-] 3.1 Source and licence review (mandatory)
     - Developer reviews the actual publications and terms of use of the Candidate_Sources and records in `docs/data-sources.md`, for each: exact publication title, publisher, URL, publication date, reference period, units, licence, attribution requirement, and whether redistribution of the needed figure in a static bundle is permitted.
     - Primary candidate: the US EIA "World Oil Transit Chokepoints" publication, for verified historical Hormuz oil and LNG transit figures. Supplementary candidates: IEA and UNCTAD, for documented dependencies and context. A figure from any of them is entered only after it is individually verified against the source, dated, and checked for reuse permissions.
     - A source whose licence does not permit inclusion is recorded as excluded and its figures become "unavailable" (not substituted).
