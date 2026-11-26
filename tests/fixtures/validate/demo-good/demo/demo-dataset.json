@@ -1,0 +1,60 @@
+{
+  "kind": "illustrative-demo",
+  "synthetic": true,
+  "schemaVersion": "test-1",
+  "datasetId": "demo-dataset",
+  "notice": "Synthetic illustrative data for demonstration only. No Source_Record exists for these values. They are not Historical Observations and make no claim about any real flow, economy, or dependency.",
+  "chokepoints": [{ "id": "demo-chokepoint-a", "name": "Demo chokepoint A (illustrative scenario location)" }],
+  "commodities": [
+    { "id": "demo-oil", "name": "Demo oil (fictional units)" },
+    { "id": "demo-lng", "name": "Demo LNG (fictional units)" }
+  ],
+  "economies": [
+    { "id": "demo-economy-a", "name": "Demo Economy A (fictional)" },
+    { "id": "demo-economy-b", "name": "Demo Economy B (fictional)" }
+  ],
+  "flows": [
+    {
+      "id": "demo-flow-oil",
+      "synthetic": true,
+      "chokepointId": "demo-chokepoint-a",
+      "commodityId": "demo-oil",
+      "value": 1000,
+      "unit": "demo oil units per day",
+      "timeBasis": "per-day",
+      "fictionalAssumption": "Round synthetic value chosen for demonstration; it is not an observation."
+    },
+    {
+      "id": "demo-flow-lng",
+      "synthetic": true,
+      "chokepointId": "demo-chokepoint-a",
+      "commodityId": "demo-lng",
+      "value": 73000,
+      "unit": "demo LNG units per year",
+      "timeBasis": "per-year",
+      "periodDayCount": { "days": 365 },
+      "fictionalAssumption": "Round synthetic value chosen for demonstration; it is not an observation."
+    }
+  ],
+  "dependencyShares": [
+    {
+      "id": "demo-share-oil-a",
+      "synthetic": true,
+      "chokepointId": "demo-chokepoint-a",
+      "commodityId": "demo-oil",
+      "economyId": "demo-economy-a",
+      "chokepointTransitImportSharePercent": 80,
+      "fictionalAssumption": "Round synthetic share chosen for demonstration; it is not an observation."
+    },
+    {
+      "id": "demo-share-lng-b",
+      "synthetic": true,
+      "chokepointId": "demo-chokepoint-a",
+      "commodityId": "demo-lng",
+      "economyId": "demo-economy-b",
+      "chokepointTransitImportSharePercent": 30,
+      "fictionalAssumption": "Round synthetic share chosen for demonstration; it is not an observation."
+    }
+  ],
+  "assumptions": ["Every figure in this fixture is invented for tests."]
+}

@@ -18,6 +18,7 @@ import {
   DEMO_DATA_UNAVAILABLE_TEXT,
   DEMO_DOCUMENT_TITLE_PREFIX,
   DEMO_FICTIONAL_MARKER,
+  DEMO_FORBIDDEN_SOURCE_NAMES,
   DEMO_ID_PREFIX,
   DEMO_MARKER,
   DEMO_NO_QUALITATIVE_TEXT,
@@ -214,6 +215,8 @@ describe('demo constants', () => {
     expect(DEMO_FICTIONAL_MARKER).toBe('(fictional)');
     expect(DEMO_UNIT_MARKER).toBe('demo');
     expect(DEMO_VALUE_MULTIPLE).toBe(10);
+    expect([...DEMO_FORBIDDEN_SOURCE_NAMES]).toEqual(['EIA', 'IEA', 'UNCTAD', 'Vortexa', 'Kpler', 'OPEC']);
+    for (const name of DEMO_FORBIDDEN_SOURCE_NAMES) expect(requirements).toContain(name);
     expect(requirements).toContain(`\`${DEMO_ID_PREFIX}\``);
     expect(requirements).toContain(`"${DEMO_FICTIONAL_MARKER}"`);
   });

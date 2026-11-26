@@ -1,0 +1,4 @@
+{
+  "note": "A JSON file that is not a Curated collection but still sits outside demo/.",
+  "inner": { "synthetic": true }
+}

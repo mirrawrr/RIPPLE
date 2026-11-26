@@ -1,0 +1,44 @@
+[
+  {
+    "id": "bad-obs-synthetic",
+    "synthetic": true,
+    "datasetId": "test-dataset",
+    "chokepointId": "test-chokepoint",
+    "commodityId": "test-commodity-a",
+    "verificationStatus": "verified",
+    "value": 1,
+    "unit": "test-unit",
+    "timeBasis": "per-day",
+    "referencePeriodStart": "2019-01-01",
+    "referencePeriodEnd": "2019-12-31",
+    "sourceRecordIds": ["test-source-1"]
+  },
+  {
+    "id": "bad-obs-nested",
+    "datasetId": "test-dataset",
+    "chokepointId": "test-chokepoint",
+    "commodityId": "test-commodity-a",
+    "verificationStatus": "verified",
+    "value": 1,
+    "unit": "test-unit",
+    "timeBasis": "per-day",
+    "referencePeriodStart": "2019-01-01",
+    "referencePeriodEnd": "2019-12-31",
+    "periodDayCount": { "days": 365, "synthetic": true },
+    "sourceRecordIds": ["test-source-1"]
+  },
+  {
+    "id": "bad-obs-kind",
+    "kind": "illustrative-demo",
+    "datasetId": "test-dataset",
+    "chokepointId": "test-chokepoint",
+    "commodityId": "test-commodity-a",
+    "verificationStatus": "verified",
+    "value": 1,
+    "unit": "test-unit",
+    "timeBasis": "per-day",
+    "referencePeriodStart": "2019-01-01",
+    "referencePeriodEnd": "2019-12-31",
+    "sourceRecordIds": ["test-source-1"]
+  }
+]

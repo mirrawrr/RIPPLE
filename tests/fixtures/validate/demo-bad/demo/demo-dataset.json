@@ -1,0 +1,59 @@
+{
+  "kind": "illustrative-demo",
+  "synthetic": true,
+  "schemaVersion": "test-1",
+  "datasetId": "demo-dataset",
+  "notice": "Synthetic illustrative data for demonstration only. No Source_Record exists for these values. They are not Historical Observations and make no claim about any real flow, economy, or dependency.",
+  "chokepoints": [{ "id": "demo-chokepoint-a", "name": "Demo chokepoint A (illustrative scenario location)" }],
+  "commodities": [{ "id": "demo-oil", "name": "Demo oil (fictional units)" }],
+  "economies": [
+    { "id": "demo-economy-a", "name": "Demo Economy A (fictional)" },
+    { "id": "bad-economy-b", "name": "Plain Economy B" }
+  ],
+  "flows": [
+    {
+      "id": "demo-flow-historical-fields",
+      "synthetic": true,
+      "chokepointId": "demo-chokepoint-a",
+      "commodityId": "demo-oil",
+      "value": 1000,
+      "unit": "demo oil units per day",
+      "timeBasis": "per-day",
+      "sourceRecordIds": ["test-source-1"],
+      "verificationStatus": "verified",
+      "fictionalAssumption": "Round synthetic value chosen for demonstration."
+    },
+    {
+      "id": "demo-flow-bad-content",
+      "synthetic": true,
+      "chokepointId": "demo-chokepoint-a",
+      "commodityId": "demo-missing-commodity",
+      "value": 15,
+      "unit": "barrels per day",
+      "timeBasis": "per-day",
+      "fictionalAssumption": "Loosely based on IEA data."
+    },
+    {
+      "id": "test-shared-id",
+      "synthetic": true,
+      "chokepointId": "demo-chokepoint-a",
+      "commodityId": "demo-oil",
+      "value": 2.5,
+      "unit": "demo oil units per day",
+      "timeBasis": "per-day",
+      "fictionalAssumption": "Round synthetic value chosen for demonstration."
+    }
+  ],
+  "dependencyShares": [
+    {
+      "id": "demo-share-bad-economy",
+      "synthetic": true,
+      "chokepointId": "demo-chokepoint-a",
+      "commodityId": "demo-oil",
+      "economyId": "demo-economy-missing",
+      "chokepointTransitImportSharePercent": 45,
+      "fictionalAssumption": "Round synthetic share chosen for demonstration."
+    }
+  ],
+  "assumptions": ["Every figure in this fixture is invented for tests."]
+}

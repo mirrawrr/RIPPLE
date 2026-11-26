@@ -163,3 +163,9 @@ export const DEMO_UNIT_MARKER = 'demo';
 
 /** Demo flow values and shares must be multiples of this number (Req 22.10). Enforced by build check D3. */
 export const DEMO_VALUE_MULTIPLE = 10;
+
+/**
+ * Publisher names that must not appear in any string of the Demo_Dataset (Req 22.10).
+ * Matched case-insensitively as whole terms by build check D3.
+ */
+export const DEMO_FORBIDDEN_SOURCE_NAMES = ['EIA', 'IEA', 'UNCTAD', 'Vortexa', 'Kpler', 'OPEC'] as const;
