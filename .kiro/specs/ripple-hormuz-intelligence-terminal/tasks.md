@@ -105,7 +105,7 @@ Rules that apply to every task:
     - _Requirements: 22.1, 22.6, 22.7, 22.8, 22.10_
     - _Design: Illustrative Demo Mode, Data Models (Demo_Dataset)_
 
-  - [ ] 2.7 Implement the demo separation checks and their property test
+  - [x] 2.7 Implement the demo separation checks and their property test
     - In `scripts/validate-dataset.ts`, add exported functions for D1 (Curated is clean), D2 (demo file parses), D3 (demo content rules: `demo-` ids, "(fictional)" economies, "demo" units, multiples of 10, no forbidden source names, no `synthetic` key in any JSON outside `public/data/demo/`) and D5 (demo references resolve and no id is shared with the Curated_Dataset). Any failure exits non-zero, writes no `dist/` output, and names the record id and field. Before 2.8, the validator tolerates the demo file being absent: absence passes and is logged as "demo dataset not present" (D1 and the Curated-side part of D3, the `synthetic` key scan, still run). Once the file exists, the validator validates its contents with `DemoDatasetSchema` and enforces D2, D3 and D5. Add a unit test for each of the two states (absent passes with the log line; present and invalid fails).
     - Add unit tests with known-bad fixtures under `tests/fixtures/`.
     - Write the Property 20 test in `tests/properties/p20-dataset-separation.test.ts` (at least 100 runs, tagged `// Feature: ripple-hormuz-intelligence-terminal, Property 20`).
