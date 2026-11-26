@@ -76,3 +76,90 @@ export const CLASS_LABELS = {
 } as const;
 
 export type ClassLabel = (typeof CLASS_LABELS)[keyof typeof CLASS_LABELS];
+
+/* ---------- Illustrative Demo Mode (Req 22) ---------- */
+
+/** The two App_Modes (Req 22.1). URL values of the `mode` parameter. */
+export const APP_MODES = ['historical', 'demo'] as const;
+export type AppMode = (typeof APP_MODES)[number];
+
+/** Historical_Mode is the default App_Mode (Req 22.1). */
+export const DEFAULT_APP_MODE = 'historical' as const satisfies AppMode;
+
+/** Illustrative_Label: the fourth Class_Label, demo mode only (Req 22.6). Not part of CLASS_LABELS. */
+export const ILLUSTRATIVE_LABEL = 'Illustrative';
+
+/** Class_Label values permitted in demo mode: no "Historical" (design: Illustrative Demo Mode). */
+export type DemoClassLabel =
+  | typeof ILLUSTRATIVE_LABEL
+  | (typeof CLASS_LABELS)['hypothetical']
+  | (typeof CLASS_LABELS)['calculated'];
+
+/** Demo_Marker: not a Class_Label (Req 22.6). */
+export const DEMO_MARKER = 'Illustrative demo';
+
+/** Demo_Banner_Text (Req 22.5). */
+export const DEMO_BANNER_TEXT =
+  'ILLUSTRATIVE DEMO MODE - synthetic data and fictional assumptions. Not historical, not current, not a prediction.';
+
+/** Demo_Data_Notice (Req 22.14). Also the literal value of `notice` in the Demo_Dataset. */
+export const DEMO_DATA_NOTICE =
+  'Synthetic illustrative data for demonstration only. No Source_Record exists for these values. They are not Historical Observations and make no claim about any real flow, economy, or dependency.';
+
+/** Demo_No_Source_Text (Req 22.6, 22.14). */
+export const DEMO_NO_SOURCE_TEXT = 'No Source_Record - synthetic illustrative value';
+
+/** Demo_Reference_Statement (Req 22.8). */
+export const DEMO_REFERENCE_STATEMENT =
+  'Demo figures have no reference period. They describe no real conditions, flows, or economies.';
+
+/** Demo_Brief_Header (Req 22.15). */
+export const DEMO_BRIEF_HEADER = 'ILLUSTRATIVE DEMO BRIEF - synthetic data, not historical or predictive';
+
+/** Demo_Brief_Footer (Req 22.15). */
+export const DEMO_BRIEF_FOOTER = 'End of illustrative demo brief. Every figure above is synthetic and fictional.';
+
+/** Statement that replaces the Qualitative_Label section of the demo brief (Req 22.15). */
+export const DEMO_NO_QUALITATIVE_TEXT = 'No qualitative dependencies are defined in the demo data.';
+
+/** Demo_Title_Prefix for chart titles and data-table captions, trailing space included (Req 22.7). */
+export const DEMO_TITLE_PREFIX = 'Illustrative demo - ';
+
+/** Document-title prefix in demo mode, trailing space included (Req 22.7). */
+export const DEMO_DOCUMENT_TITLE_PREFIX = '[Illustrative demo] ';
+
+/** Prefix of every scenario-result announcement in demo mode (Req 22.7). */
+export const DEMO_ANNOUNCEMENT_PREFIX = 'Illustrative demo.';
+
+/** Mode_Toggle labels (glossary). `toDemo` shows in Historical_Mode, `toHistorical` in demo mode. */
+export const MODE_TOGGLE_LABELS = {
+  toDemo: 'Switch to Illustrative demo mode',
+  toHistorical: 'Return to Historical mode',
+} as const;
+
+/** Label of the Demo_Banner control (Req 22.4). Same text as the Mode_Toggle label in demo mode. */
+export const DEMO_BANNER_RETURN_LABEL = MODE_TOGGLE_LABELS.toHistorical;
+
+/** Mode_Announcements, keyed by the mode just entered (Req 22.3). */
+export const MODE_ANNOUNCEMENTS = {
+  demo: 'Illustrative demo mode on. Figures are synthetic and not historical.',
+  historical: 'Historical mode on.',
+} as const;
+
+/** Shown in place of each demo figure when the Demo_Dataset is not ready (Req 22.12). */
+export const DEMO_DATA_UNAVAILABLE_TEXT = 'Demo data unavailable';
+
+/** Required prefix of every Demo_Dataset identifier (Req 22.10). Content rule, enforced by build check D3. */
+export const DEMO_ID_PREFIX = 'demo-';
+
+/** Value of `kind` in the Demo_Dataset (design: Demo_Dataset). */
+export const DEMO_DATASET_KIND = 'illustrative-demo';
+
+/** Marker every fictional economy name must contain (Req 22.10). Enforced by build check D3. */
+export const DEMO_FICTIONAL_MARKER = '(fictional)';
+
+/** Text every demo unit must contain, case-insensitive (Req 22.10). Enforced by build check D3. */
+export const DEMO_UNIT_MARKER = 'demo';
+
+/** Demo flow values and shares must be multiples of this number (Req 22.10). Enforced by build check D3. */
+export const DEMO_VALUE_MULTIPLE = 10;

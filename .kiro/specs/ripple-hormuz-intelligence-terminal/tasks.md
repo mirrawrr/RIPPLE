@@ -97,7 +97,7 @@ Rules that apply to every task:
     - _Requirements: 4.10, 12.11, 16.7, 22.2_
     - _Design: DatasetProvider, Data flow summary, Error Handling_
 
-  - [ ] 2.6 Add the demo constants, schemas and demo generators
+  - [x] 2.6 Add the demo constants, schemas and demo generators
     - Add to `src/config/constants.ts`: the exact Demo strings (Demo_Banner_Text, Demo_Data_Notice, Demo_No_Source_Text, Demo_Reference_Statement, Demo_Brief_Header, Demo_Brief_Footer, Demo_Title_Prefix and document-title prefix, Mode_Toggle labels, Mode_Announcements, Demo_Marker, `ILLUSTRATIVE_LABEL`), `DEMO_ID_PREFIX = 'demo-'`, `APP_MODES`, `DEFAULT_APP_MODE = 'historical'`. `CLASS_LABELS` and `ClassLabel` are not modified. Extend `constants.test.ts` so the new exact strings also appear verbatim in `requirements.md` and are included in the "no hard-coded copies" scan.
     - Add `DemoFlowSchema`, `DemoDependencyShareSchema` and `DemoDatasetSchema` to `src/data/schema.ts` as additive exports (`CuratedDatasetSchema` and its record schemas are not modified). Add `tests/schema/demo-schema.test.ts` and `tests/generators.demo.ts` (valid Demo_Dataset arbitraries).
     - Acceptance: existing schema and constants tests pass unmodified in behaviour; a demo record with `sourceRecordIds` or `verificationStatus` is rejected; a Curated observation with a `synthetic` key is rejected.

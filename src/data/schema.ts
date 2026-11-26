@@ -11,6 +11,8 @@
  * belong to scripts/validate-dataset.ts, not to this file.
  */
 import { z } from 'zod';
+// Explicit .ts extension: scripts/validate-dataset.ts loads this file under Node's type stripping.
+import { DEMO_DATA_NOTICE, DEMO_DATASET_KIND } from '../config/constants.ts';
 
 /* ---------- Primitives ---------- */
 
@@ -272,3 +274,70 @@ export const CuratedDatasetSchema = z.strictObject({
   graphEdges: z.array(GraphEdgeSchema),
 });
 export type CuratedDataset = z.infer<typeof CuratedDatasetSchema>;
+
+/* ---------- Demo_Dataset (Req 22.10; design: Data Models, Demo_Dataset) ---------- */
+
+/*
+ * Additive and fully separate from the Curated schemas above. Every demo object is
+ * strict, so a demo record carrying sourceRecordIds, verificationStatus, a date,
+ * a reference period, a URL, a licence or an attribution is rejected, and a Curated
+ * record carrying `synthetic` is rejected by the strict Curated schemas.
+ *
+ * Content rules (demo- id prefix, "(fictional)" economy names, "demo" units, multiples
+ * of 10, forbidden publisher names, id separation from the Curated_Dataset) are NOT
+ * enforced here. They are build check D3/D5 (Task 2.7), as the design places them.
+ */
+
+/** Demo days-in-period: a positive safe integer and nothing else (no reference year or dates). */
+const DemoPeriodDayCountSchema = z.strictObject({
+  days: z.number().int().safe().min(1),
+});
+
+export const DemoFlowSchema = z
+  .strictObject({
+    id: idString,
+    synthetic: z.literal(true),
+    chokepointId: ChokepointIdSchema,
+    commodityId: CommodityIdSchema,
+    value: z.number().min(0),
+    unit: nonEmptyText,
+    timeBasis: TimeBasisSchema,
+    periodDayCount: DemoPeriodDayCountSchema.optional(),
+    fictionalAssumption: nonEmptyText,
+  })
+  .superRefine((f, ctx) => {
+    if (f.timeBasis === 'per-year' && f.periodDayCount === undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['periodDayCount'],
+        message: 'periodDayCount is required for a per-year demo flow',
+      });
+    }
+  });
+export type DemoFlow = z.infer<typeof DemoFlowSchema>;
+
+export const DemoDependencyShareSchema = z.strictObject({
+  id: idString,
+  synthetic: z.literal(true),
+  chokepointId: ChokepointIdSchema,
+  commodityId: CommodityIdSchema,
+  economyId: EconomyIdSchema,
+  chokepointTransitImportSharePercent: z.number().min(0).max(100),
+  fictionalAssumption: nonEmptyText,
+});
+export type DemoDependencyShare = z.infer<typeof DemoDependencyShareSchema>;
+
+export const DemoDatasetSchema = z.strictObject({
+  kind: z.literal(DEMO_DATASET_KIND),
+  synthetic: z.literal(true),
+  schemaVersion: nonEmptyText,
+  datasetId: DatasetIdSchema,
+  notice: z.literal(DEMO_DATA_NOTICE),
+  chokepoints: z.array(ChokepointDeclarationSchema),
+  commodities: z.array(CommodityDeclarationSchema),
+  economies: z.array(EconomyDeclarationSchema),
+  flows: z.array(DemoFlowSchema),
+  dependencyShares: z.array(DemoDependencyShareSchema),
+  assumptions: z.array(nonEmptyText).min(1),
+});
+export type DemoDataset = z.infer<typeof DemoDatasetSchema>;

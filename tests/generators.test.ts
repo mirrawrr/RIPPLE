@@ -5,14 +5,31 @@ import fc from 'fast-check';
 import {
   COMMODITY_SCOPES,
   CONTROL_LABELS,
+  DEMO_FICTIONAL_MARKER,
+  DEMO_ID_PREFIX,
+  DEMO_UNIT_MARKER,
+  DEMO_VALUE_MULTIPLE,
   DURATION_RANGE,
   MAGNITUDE_RANGE,
 } from '../src/config/constants';
+import {
+  HISTORICAL_FIELD_NAMES,
+  arbDemoDataset,
+  arbDemoDeclaration,
+  arbDemoDeclarations,
+  arbDemoDependencyShare,
+  arbDemoFlow,
+  arbDemoWithHistoricalField,
+  arbInvalidDemoCase,
+} from './generators.demo';
 import { validateIntegerInRange, validateScenarioInput } from '../src/domain/validation';
 import {
   ChokepointDeclarationSchema,
   CommodityDeclarationSchema,
   DatasetDeclarationSchema,
+  DemoDatasetSchema,
+  DemoDependencyShareSchema,
+  DemoFlowSchema,
   DependencyShareSchema,
   EconomyDeclarationSchema,
   GraphEdgeSchema,
@@ -205,6 +222,68 @@ describe('dataset record arbitraries satisfy the Zod schemas', () => {
       );
     });
   }
+});
+
+describe('demo arbitraries', () => {
+  const ID_OK = (s: string) => s.startsWith(DEMO_ID_PREFIX);
+
+  it('valid demo records, declarations and datasets satisfy the demo schemas', () => {
+    fc.assert(fc.property(arbDemoFlow, (r) => DemoFlowSchema.safeParse(r).success));
+    fc.assert(fc.property(arbDemoDependencyShare, (r) => DemoDependencyShareSchema.safeParse(r).success));
+    fc.assert(fc.property(arbDemoDeclaration, (r) => ChokepointDeclarationSchema.safeParse(r).success));
+    fc.assert(
+      fc.property(arbDemoDeclarations, (ds) => ds.length > 0 && ds.every((d) => ChokepointDeclarationSchema.safeParse(d).success)),
+    );
+    fc.assert(
+      fc.property(arbDemoDataset, (d) => {
+        const r = DemoDatasetSchema.safeParse(d);
+        if (!r.success) throw new Error(JSON.stringify(r.error.issues));
+      }),
+    );
+  });
+
+  it('valid demo datasets follow the demo content rules and resolve their references', () => {
+    fc.assert(
+      fc.property(arbDemoDataset, (d) => {
+        const chokepoints = new Set(d.chokepoints.map((x) => x.id));
+        const commodities = new Set(d.commodities.map((x) => x.id));
+        const economies = new Set(d.economies.map((x) => x.id));
+        const ids = [
+          d.datasetId,
+          ...d.chokepoints.map((x) => x.id),
+          ...d.commodities.map((x) => x.id),
+          ...d.economies.map((x) => x.id),
+          ...d.flows.map((x) => x.id),
+          ...d.dependencyShares.map((x) => x.id),
+        ];
+        expect(ids.every(ID_OK)).toBe(true);
+        expect(new Set(ids).size).toBe(ids.length);
+        expect(d.economies.every((e) => e.name.includes(DEMO_FICTIONAL_MARKER))).toBe(true);
+        expect(d.flows.every((f) => f.unit.toLowerCase().includes(DEMO_UNIT_MARKER))).toBe(true);
+        expect(d.flows.every((f) => f.value % DEMO_VALUE_MULTIPLE === 0)).toBe(true);
+        expect(
+          d.dependencyShares.every((s) => s.chokepointTransitImportSharePercent % DEMO_VALUE_MULTIPLE === 0),
+        ).toBe(true);
+        expect(d.flows.every((f) => chokepoints.has(f.chokepointId) && commodities.has(f.commodityId))).toBe(true);
+        expect(
+          d.dependencyShares.every(
+            (s) => chokepoints.has(s.chokepointId) && commodities.has(s.commodityId) && economies.has(s.economyId),
+          ),
+        ).toBe(true);
+      }),
+    );
+  });
+
+  it('invalid demo cases are rejected, and every historical field is covered', () => {
+    fc.assert(
+      fc.property(arbInvalidDemoCase, (c) => {
+        const schema = c.target === 'flow' ? DemoFlowSchema : c.target === 'share' ? DemoDependencyShareSchema : DemoDatasetSchema;
+        expect(schema.safeParse(c.record).success, c.kind).toBe(false);
+      }),
+    );
+    const fields = new Set(fc.sample(arbDemoWithHistoricalField, { numRuns: 1000, seed: 11 }).map((c) => c.field));
+    expect([...fields].sort()).toEqual([...HISTORICAL_FIELD_NAMES].sort());
+  });
 });
 
 describe('fast-check configuration', () => {
