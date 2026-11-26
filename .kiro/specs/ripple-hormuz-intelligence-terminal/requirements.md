@@ -6,7 +6,7 @@ RIPPLE ("One event. A thousand consequences.") is an interactive geopolitical in
 
 The MVP lets a user explore the strait on a map, review dated historical oil and LNG transit figures, set a hypothetical percentage reduction in baseline transit flow for a hypothetical duration, see transparent deterministic calculations computed separately for each commodity in its own unit, and inspect the evidence behind every figure. The visual direction is an immersive, credible, premium dark geopolitical intelligence terminal with interactive maritime geography, trade relationships, and transparent scenario analysis, using an original identity. The application uses a curated, verified, static dataset. It contains no live shipping data, no predictions, no economic losses, and no forecasts.
 
-Every figure shown to the user belongs to exactly one of three classes: Historical Observation, Hypothetical Assumption, or Calculated Outcome. The interface labels each figure with its class.
+Every figure shown to the user belongs to exactly one of three classes: Historical Observation, Hypothetical Assumption, or Calculated Outcome. The interface labels each figure with its class. In the optional Illustrative_Demo_Mode, synthetic inputs carry the fourth label "Illustrative" instead of "Historical", and every Hypothetical or Calculated figure also carries the Demo_Marker. Illustrative_Demo_Mode is never the default.
 
 All figures describe a stated historical reference period. They are not a claim about current conditions or current flows.
 
@@ -44,7 +44,7 @@ The four-View workflow (Overview, Explore, Scenario Lab, Intelligence Brief) is 
 - **Disruption_Duration**: A hypothetical length of time, as a whole number of days from 1 to 365, over which the hypothetical reduction is applied.
 - **Scenario_Input_Validation**: The single canonical rule set for numeric scenario input defined in Requirement 6, applied to the Scenario Lab controls, URL parameters, and error announcements.
 - **Scenario_Engine**: The deterministic calculation module that computes Calculated Outcomes from a scenario input and Curated_Dataset records. Its interface is independent of any specific chokepoint or commodity.
-- **Curated_Dataset**: The static, version-controlled, schema-versioned data bundled with RIPPLE, containing Source_Records, Historical_Observations, Qualitative_Dependencies, and dependency graph definitions.
+- **Curated_Dataset**: The static, version-controlled, schema-versioned data bundled with RIPPLE, containing Source_Records, Historical_Observations, Qualitative_Dependencies, and dependency graph definitions. It never contains a Synthetic_Record and is distinct from the Demo_Dataset.
 - **Schema_Version**: The version identifier of the Curated_Dataset schema, stored in the Curated_Dataset.
 - **Candidate_Source**: A publisher proposed as a possible authoritative source but not yet confirmed. The Candidate_Sources are the International Energy Agency (IEA), the US Energy Information Administration (EIA), and the United Nations Trade and Development (UNCTAD).
 - **Source_Record**: A Curated_Dataset entry identifying a publication by publisher, title, URL, publication date, data reference period, units, retrieval date, usage licence, attribution requirement, Verification_Status, and verification date.
@@ -68,7 +68,24 @@ The four-View workflow (Overview, Explore, Scenario Lab, Intelligence Brief) is 
 - **Quantified_Economy**: An import-dependent economy for which the Curated_Dataset holds, for a commodity, a verified Source_Record containing a Hormuz-transit import share with its publication, observation period, unit, and value.
 - **Qualitative_Dependency**: A documented dependency of an economy on a commodity transiting the Strait of Hormuz, described in words, backed by a verified Source_Record, and holding no numeric share.
 - **Qualitative_Label**: The exact text "Qualitative documented dependency - not quantified".
-- **Class_Label**: The visible text tag "Historical", "Hypothetical", or "Calculated" attached to a figure.
+- **Class_Label**: The visible text tag "Historical", "Hypothetical", or "Calculated" attached to a figure, or, only in Illustrative_Demo_Mode, "Illustrative".
+- **App_Mode**: The user-selected operating mode of the Terminal, either Historical_Mode or Illustrative_Demo_Mode. It is not part of the Active_Scenario. URL parameter `mode`.
+- **Historical_Mode**: The default App_Mode (URL value `historical`). It uses only the Curated_Dataset.
+- **Illustrative_Demo_Mode**: An App_Mode (URL value `demo`) selected only by explicit user action or by `mode=demo` in the URL. It uses only the Demo_Dataset.
+- **Demo_Dataset**: The static, schema-versioned file `public/data/demo/demo-dataset.json`, containing only Synthetic_Records, fictional declarations, and fictional assumptions. It is separate from the Curated_Dataset and ships in the production deployment.
+- **Synthetic_Record**: A Demo_Dataset record with `synthetic: true`. It has no Source_Record, no Verification_Status, no reference period, and no publisher.
+- **Illustrative_Label**: The exact text "Illustrative". It is the fourth Class_Label, permitted only in Illustrative_Demo_Mode, and applied to synthetic baseline flow inputs and synthetic dependency share inputs.
+- **Demo_Marker**: The exact text "Illustrative demo". It is not a Class_Label.
+- **Mode_Toggle**: The header control that switches the App_Mode. Its labels are "Switch to Illustrative demo mode" (in Historical_Mode) and "Return to Historical mode" (in Illustrative_Demo_Mode).
+- **Demo_Banner**: The persistent region that contains the Demo_Banner_Text and a control labelled "Return to Historical mode".
+- **Demo_Banner_Text**: The exact text "ILLUSTRATIVE DEMO MODE - synthetic data and fictional assumptions. Not historical, not current, not a prediction."
+- **Demo_Data_Notice**: The exact text "Synthetic illustrative data for demonstration only. No Source_Record exists for these values. They are not Historical Observations and make no claim about any real flow, economy, or dependency."
+- **Demo_No_Source_Text**: The exact text "No Source_Record - synthetic illustrative value".
+- **Demo_Reference_Statement**: The exact text "Demo figures have no reference period. They describe no real conditions, flows, or economies."
+- **Demo_Brief_Header**: The exact text "ILLUSTRATIVE DEMO BRIEF - synthetic data, not historical or predictive".
+- **Demo_Brief_Footer**: The exact text "End of illustrative demo brief. Every figure above is synthetic and fictional."
+- **Demo_Title_Prefix**: The exact text "Illustrative demo - ", used before chart titles and data-table captions. The document title uses the prefix "[Illustrative demo] ".
+- **Mode_Announcements**: The exact texts "Illustrative demo mode on. Figures are synthetic and not historical." and "Historical mode on."
 - **Analysis_Date**: The date, in YYYY-MM-DD format, on which the user views or generates the analysis, displayed in the UI.
 - **Build_Date**: The date, in YYYY-MM-DD format, on which the Curated_Dataset version was built.
 - **Observation_Age**: The elapsed time, in whole years and months, between the end of a Historical_Observation's data reference period and the Analysis_Date.
@@ -91,7 +108,7 @@ The four-View workflow (Overview, Explore, Scenario Lab, Intelligence Brief) is 
 
 1. THE Terminal SHALL provide exactly four Views named Overview, Explore, Scenario Lab, and Intelligence Brief, each reachable from the Navigation_Bar by a single selection and displayed without a full page reload.
 2. THE Terminal SHALL assign each View a distinct URL path so that the View can be bookmarked and, when the URL is reloaded, display the same View.
-3. WHEN the user switches Views, THE Terminal SHALL preserve every Active_Scenario parameter value unchanged.
+3. WHEN the user switches Views, THE Terminal SHALL preserve every Active_Scenario parameter value and the App_Mode unchanged.
 4. WHEN the Terminal loads a URL containing Active_Scenario parameters, THE Terminal SHALL initialise the Active_Scenario from those parameters using Scenario_Input_Validation (Requirement 6 criterion 10).
 5. WHEN the Active_Scenario changes, THE Terminal SHALL update the URL to reflect all current Active_Scenario parameter values without adding a new browser history entry for each change.
 6. WHILE a View is the current View, THE Terminal SHALL indicate it in the Navigation_Bar using distinct visual styling and the `aria-current="page"` attribute, and SHALL apply neither indication to any other View.
@@ -105,9 +122,9 @@ The four-View workflow (Overview, Explore, Scenario Lab, Intelligence Brief) is 
 
 #### Acceptance Criteria
 
-1. WHEN the Overview loads, THE Overview SHALL display the RIPPLE name, the tagline "One event. A thousand consequences.", a statement that the MVP covers only the Strait of Hormuz, oil, and LNG, and the Reference_Statement.
-2. WHEN the Overview loads, THE Overview SHALL display, separately for crude oil and for LNG, the Baseline_Transit_Flow with its numeric value, its own unit and time basis, Class_Label "Historical", Source_Record title, data reference period, and Observation_Age.
-3. IF a Baseline_Transit_Flow, Source_Record title, or data reference period is unavailable for a commodity, THEN THE Overview SHALL display a text indicator stating that the value is unavailable in place of the missing item, SHALL continue to display all other Overview content, and SHALL NOT display a numeric value without its Class_Label and Source_Record title.
+1. WHEN the Overview loads, THE Overview SHALL display the RIPPLE name, the tagline "One event. A thousand consequences.", a statement that the MVP covers only the Strait of Hormuz, oil, and LNG, and the Reference_Statement (in Illustrative_Demo_Mode, the Demo_Reference_Statement).
+2. WHILE Historical_Mode is active, WHEN the Overview loads, THE Overview SHALL display, separately for crude oil and for LNG, the Baseline_Transit_Flow with its numeric value, its own unit and time basis, Class_Label "Historical", Source_Record title, data reference period, and Observation_Age.
+3. WHILE Historical_Mode is active, IF a Baseline_Transit_Flow, Source_Record title, or data reference period is unavailable for a commodity, THEN THE Overview SHALL display a text indicator stating that the value is unavailable in place of the missing item, SHALL continue to display all other Overview content, and SHALL NOT display a numeric value without its Class_Label and Source_Record title.
 4. WHEN the Overview loads, THE Overview SHALL display a definition of each of the three figure classes (Historical, Hypothetical, Calculated) in no more than 25 words per class, readable without hover, click, or expansion.
 5. WHEN the Overview loads, THE Overview SHALL display a statement that RIPPLE uses curated static data, includes no live vessel tracking, and provides no forecasts.
 6. WHEN the user activates a call-to-action on the Overview, THE Terminal SHALL navigate to the Explore View or the Scenario Lab View as labelled on that call-to-action, and SHALL keep the Active_Scenario unchanged.
@@ -187,7 +204,7 @@ The four-View workflow (Overview, Explore, Scenario Lab, Intelligence Brief) is 
 7. WHILE a control shows an error message, THE Scenario Lab SHALL set `aria-invalid="true"` on the control and reference the error message element in the control's `aria-describedby`.
 8. WHEN an error message is displayed, THE Terminal SHALL announce the error message text through a live region.
 9. WHEN the user next enters a valid value in a control that shows an error message, THE Scenario Lab SHALL remove the error message, remove `aria-invalid`, and remove the `aria-describedby` reference to the error message.
-10. IF a URL parameter for Disruption_Magnitude, Disruption_Duration, or Commodity_Scope is rejected by criteria 1 to 4 (or is not one of `oil`, `lng`, `both` for Commodity_Scope), THEN THE Terminal SHALL replace that parameter with its default value, keep every valid parameter unchanged, display a notice naming each corrected parameter and its default value, and announce that notice through a live region.
+10. IF a URL parameter for Disruption_Magnitude, Disruption_Duration, or Commodity_Scope is rejected by criteria 1 to 4 (or is not one of `oil`, `lng`, `both` for Commodity_Scope), THEN THE Terminal SHALL replace that parameter with its default value, keep every valid parameter unchanged, display a notice naming each corrected parameter and its default value, and announce that notice through a live region. The same rule applies to the `mode` parameter as specified in Requirement 22 criterion 13.
 
 ### Requirement 7: Transparent Deterministic Calculations
 
@@ -283,7 +300,7 @@ The four-View workflow (Overview, Explore, Scenario Lab, Intelligence Brief) is 
 3. WHEN the user opens the Intelligence_Brief, THE Intelligence_Brief SHALL present, separately for each commodity in the Commodity_Scope, the Quantified_Economies ranked by Scenario_Exposure_Index from highest to lowest (at most 5, and only those for which verified country-level observations exist, with no fabricated entries), each labelled "Calculated" and accompanied by the Scenario_Exposure_Disclaimer.
 4. WHEN the user opens the Intelligence_Brief, THE Intelligence_Brief SHALL present, in a section labelled with the Qualitative_Label, every Qualitative_Dependency for the Commodity_Scope, including when no Quantified_Economy exists for a commodity, unranked and with no numeric exposure value.
 5. IF a commodity in the Commodity_Scope has zero Quantified_Economies, THEN THE Intelligence_Brief SHALL present a notice that no verified country-level data is available for that commodity and SHALL still present all other Intelligence_Brief content.
-6. WHEN the user opens the Intelligence_Brief, THE Intelligence_Brief SHALL present each Baseline_Transit_Flow used by the Active_Scenario, labelled "Historical", with its source name, data reference period, unit, Observation_Age, and, where the Annual_To_Daily_Step is applied, the Period_Day_Count (labelled "Hypothetical", with 365 or 366 days stated for a calendar-year period) and the resulting Baseline_Daily_Flow (labelled "Calculated").
+6. WHILE Historical_Mode is active, WHEN the user opens the Intelligence_Brief, THE Intelligence_Brief SHALL present each Baseline_Transit_Flow used by the Active_Scenario, labelled "Historical", with its source name, data reference period, unit, Observation_Age, and, where the Annual_To_Daily_Step is applied, the Period_Day_Count (labelled "Hypothetical", with 365 or 366 days stated for a calendar-year period) and the resulting Baseline_Daily_Flow (labelled "Calculated").
 7. WHEN the user opens the Intelligence_Brief, THE Intelligence_Brief SHALL present every Source_Record, assumption, and modelling limitation relevant to the Active_Scenario, with no entries omitted or truncated, and the Reference_Statement.
 8. WHEN the user opens the Intelligence_Brief, THE Intelligence_Brief SHALL display the Analysis_Date, the Build_Date, and the Curated_Dataset version identifier.
 9. THE Intelligence_Brief SHALL use neutral analytical language and SHALL NOT include predictions, probabilities of events, or financial forecasts.
@@ -296,7 +313,7 @@ The four-View workflow (Overview, Explore, Scenario Lab, Intelligence Brief) is 
 
 #### Acceptance Criteria
 
-1. THE Terminal SHALL display every numeric figure with exactly one Class_Label, being "Historical", "Hypothetical", or "Calculated", shown as visible text adjacent to the figure.
+1. THE Terminal SHALL display every numeric figure with exactly one Class_Label, being "Historical", "Hypothetical", or "Calculated" (or, only in Illustrative_Demo_Mode, "Illustrative" in place of "Historical"), shown as visible text adjacent to the figure.
 2. THE Terminal SHALL present no real-time or simulated live shipping data, vessel tracking, or live price data.
 3. IF a causal relationship or dependency has no verified Source_Record in the Curated_Dataset, THEN THE Terminal SHALL omit it from every View.
 4. THE Terminal SHALL present no economic loss values, price values, or financial forecast values in any currency or unit.
@@ -305,9 +322,9 @@ The four-View workflow (Overview, Explore, Scenario Lab, Intelligence Brief) is 
 7. THE Terminal SHALL display the Analysis_Date in the application header or footer of every View, and SHALL display the Curated_Dataset version identifier and Build_Date in the application footer of every View.
 8. THE Terminal SHALL display the Observation_Age beside every Historical_Observation, in the form "reference period ended N years and M months before the analysis date".
 9. WHEN an Observation_Age exceeds the Stale_Threshold, THE Terminal SHALL display the Older_Period_Notice beside that observation, SHALL keep the observation available for display and Scenario_Engine calculations, and SHALL NOT state or imply that the observation is inaccurate, where the Stale_Threshold is a configurable constant with a default of 12 months, to be confirmed by the user.
-10. THE Terminal SHALL display the Reference_Statement on every View at all times, without requiring user interaction.
+10. THE Terminal SHALL display the Reference_Statement on every View at all times, without requiring user interaction. In Illustrative_Demo_Mode the Demo_Reference_Statement is displayed instead.
 11. IF the Curated_Dataset version or Build_Date cannot be read, THEN THE Terminal SHALL display in the footer an indication that the dataset version is unavailable and SHALL continue to display all other content.
-12. FOR ALL valid Active_Scenario values, THE Terminal SHALL produce Calculated_Outcomes derived only from Historical_Observations and Hypothetical_Assumptions present in the Curated_Dataset and the Active_Scenario.
+12. FOR ALL valid Active_Scenario values, THE Terminal SHALL produce Calculated_Outcomes derived only from Historical_Observations and Hypothetical_Assumptions present in the Curated_Dataset (Historical_Mode) or the Demo_Dataset (Illustrative_Demo_Mode) and the Active_Scenario.
 
 ### Requirement 13: Visual Design
 
@@ -404,7 +421,8 @@ The four-View workflow (Overview, Explore, Scenario Lab, Intelligence Brief) is 
 5. THE project SHALL include schema-validation tests that fail, and identify the offending record or edge, IF any figure lacks a Verification_Status of "verified", or any Source_Record or Graph_Edge has a missing, empty, or null required field.
 6. THE project SHALL include automated accessibility checks that run against each View and fail IF the tooling reports one or more WCAG 2.2 AA violations on that View.
 7. THE project SHALL include an end-to-end test that sets the Active_Scenario to a non-default value in the Scenario Lab, navigates to every View, and verifies on each View that every Active_Scenario field value equals the value set.
-8. IF any test defined in criteria 1 to 7 fails, THEN THE project SHALL report the test run as failed with a non-zero exit status and SHALL identify each failing test by name.
+8. IF any test defined in criteria 1 to 7 or criterion 9 fails, THEN THE project SHALL report the test run as failed with a non-zero exit status and SHALL identify each failing test by name.
+9. THE project SHALL include property-based tests of at least 100 generated inputs each for these App_Mode rules: Historical_Mode never displays a Demo_Dataset value, the URL round-trip including the App_Mode, and the separation of the Curated_Dataset and the Demo_Dataset; and SHALL include unit tests for the demo labelling, the mode preservation across reset and View changes, and the correction of an invalid `mode` parameter.
 
 ### Requirement 19: Kiro Usage and Hackathon Submission
 
@@ -420,7 +438,8 @@ The four-View workflow (Overview, Explore, Scenario Lab, Intelligence Brief) is 
 4. THE project repository SHALL include a `LICENSE` file at the repository root containing the full text of one open-source licence recognised by the Open Source Initiative (OSI).
 5. THE README SHALL state the Curated_Dataset version identifier, the reference period and licence of each data source, the Reference_Statement, and every limitation listed in Requirement 10 criterion 8.
 6. WHEN a user follows the README setup instructions on a machine that meets the listed prerequisites, THE README SHALL enable the user to start RIPPLE without any step that the README does not describe.
-7. IF the README omits any item required by criteria 3 and 5, THEN THE project repository SHALL be treated as failing this requirement.
+7. IF the README omits any item required by criteria 3, 5 and 8, THEN THE project repository SHALL be treated as failing this requirement.
+8. THE README SHALL include a judging note stating that Historical_Mode is the default, that Illustrative_Demo_Mode uses synthetic and fictional data only, and how to open it (`?mode=demo`).
 
 ### Requirement 20: MVP Scope Boundaries and Build Order
 
@@ -432,7 +451,7 @@ The four-View workflow (Overview, Explore, Scenario Lab, Intelligence Brief) is 
 
 1. THE Terminal SHALL support exactly one chokepoint (the Strait of Hormuz) and exactly two commodities (oil and LNG) in the MVP.
 2. THE Terminal SHALL provide no user account creation, no sign-in, no server-side storage of saved scenarios, and no analysis that combines more than one chokepoint in the MVP.
-3. THE project SHALL define a build order of four phases, each assigned the requirements listed here. Phase 1 delivers the application shell, Overview, and Scenario Lab foundation with Requirements 1, 2, 5, 6, 7, and 17. Phase 2 completes the four-View workflow and the MVP user journey with Requirements 3, 8, 10, and 11. Phase 3 delivers Requirements 9, 13, 15, 16, and 19. Phase 4 delivers Requirement 21.
+3. THE project SHALL define a build order of four phases, each assigned the requirements listed here. Phase 1 delivers the application shell, Overview, and Scenario Lab foundation with Requirements 1, 2, 5, 6, 7, and 17. Phase 2 completes the four-View workflow and the MVP user journey with Requirements 3, 8, 10, 11, and 22. The Requirement 22 data, schema, separation-check, URL-codec, and mode-state foundations are built in Phase 1 waves, and the demo user interface follows the Historical four-View journey in Phase 2 order. Phase 3 delivers Requirements 9, 13, 15, 16, and 19. Phase 4 delivers Requirement 21.
 4. THE project SHALL apply Requirements 4, 12, 14, and 18 (the Continuous_Requirements covering dataset verification, source traceability, content boundaries, accessibility, and automated tests) in every phase, and each phase SHALL satisfy their criteria for the features that phase delivers, including the dataset records, source records, accessibility checks, and automated tests for those features.
 5. WHEN a phase is scheduled to start, THE project SHALL have every requirement assigned to the previous phase meet its acceptance criteria, and SHALL have the criteria of the Continuous_Requirements that apply to the features delivered so far met, or have any exception recorded with a reason in the project's build-order document.
 6. THE project SHALL NOT block a phase on any criterion of a Continuous_Requirement that applies only to a feature not yet delivered in that phase or an earlier phase.
@@ -456,3 +475,28 @@ The four-View workflow (Overview, Explore, Scenario Lab, Intelligence Brief) is 
 7. WHERE a design-token set is provided, THE Terminal SHALL source all colour, spacing, and font-size values from that set.
 8. WHERE multi-hop simulation or multi-hop path exploration is provided, THE Dependency_Graph SHALL highlight only paths composed of Graph_Edges that each have a verified Source_Record, and SHALL display no numeric value for any Graph_Node more than one hop from the selected node unless a verified Source_Record provides it.
 9. WHERE complex graph animations are provided, THE Terminal SHALL disable them WHEN the user's system requests reduced motion.
+
+### Requirement 22: Illustrative Demo Mode
+
+**Priority:** MVP-Supporting
+
+**User Story:** As a hackathon judge, I want an explicitly labelled demonstration mode with synthetic data, so that I can try a working Scenario Lab without mistaking its figures for historical data.
+
+#### Acceptance Criteria
+
+1. THE Terminal SHALL provide exactly two App_Modes, Historical_Mode and Illustrative_Demo_Mode, SHALL use Historical_Mode as the default, and SHALL enter Illustrative_Demo_Mode only WHEN the user activates the Mode_Toggle or WHEN the loaded URL contains `mode=demo`.
+2. WHILE Historical_Mode is active, THE Terminal SHALL NOT request, read, display, or calculate with any Demo_Dataset value, the Illustrative_Label, the Demo_Marker, or the Demo_Banner_Text, and SHALL display "Source unavailable" or "not calculable" as specified in Requirements 4.10 and 7.15 in place of an unavailable Baseline_Transit_Flow or Source_Record, without substituting any Demo_Dataset value.
+3. WHEN the user activates the Mode_Toggle, THE Terminal SHALL change the App_Mode, keep every Active_Scenario value and the current View unchanged, update the URL without adding a browser history entry, and announce the matching Mode_Announcement through a polite live region. WHEN the user activates the scenario reset control, THE Terminal SHALL leave the App_Mode unchanged.
+4. THE Terminal SHALL display the Mode_Toggle in the header of every View as a keyboard-operable button whose accessible name equals its visible label. WHILE Illustrative_Demo_Mode is active, THE Demo_Banner SHALL contain a control labelled "Return to Historical mode", and WHEN that control is activated, THE Terminal SHALL switch to Historical_Mode and move keyboard focus to the Mode_Toggle.
+5. WHILE Illustrative_Demo_Mode is active, THE Terminal SHALL display the Demo_Banner containing the Demo_Banner_Text at the top of every View, non-dismissible, remaining visible while the View scrolls, and distinguishable from other content by text and a non-colour border pattern in addition to colour.
+6. WHILE Illustrative_Demo_Mode is active, THE Terminal SHALL display, on the Overview, the Scenario Lab, the Evidence_Panel, and the Intelligence_Brief, every numeric figure with exactly one Class_Label ("Illustrative" for synthetic baseline flows and share inputs, "Hypothetical" for scenario parameters and the Period_Day_Count, "Calculated" for Scenario_Engine outputs), the Demo_Marker adjacent to every figure labelled "Hypothetical" or "Calculated", and the Demo_No_Source_Text next to each synthetic input, and SHALL NOT display the Class_Label "Historical", any Observation_Age, the Older_Period_Notice, or any Source_Record title.
+7. WHILE Illustrative_Demo_Mode is active, THE Terminal SHALL begin every chart title and data-table caption with the Demo_Title_Prefix, SHALL begin the document title with "[Illustrative demo] ", and SHALL begin each scenario-result announcement with "Illustrative demo." while keeping the announcement to at most 150 characters including that prefix.
+8. WHILE Illustrative_Demo_Mode is active, THE Terminal SHALL display the Demo_Reference_Statement in place of the Reference_Statement on every View, SHALL display the Scenario_Exposure_Disclaimer wherever Scenario_Exposure_Index is shown, and SHALL add a definition of the Illustrative_Label of no more than 25 words, readable without interaction, to the Overview class definitions.
+9. THE Terminal SHALL compute every Calculated_Outcome in both App_Modes with the same Scenario_Engine and the same input types, SHALL pass no App_Mode indicator to the Scenario_Engine, and SHALL apply the same defaults (25, 7, `both`), the same ranges, and the same Scenario_Input_Validation in both App_Modes.
+10. THE Demo_Dataset SHALL contain only Synthetic_Records whose identifiers begin with `demo-`, economies whose names contain "(fictional)", units that contain "demo", and baseline flow and share values that are multiples of 10, each with a fictional assumption statement, and SHALL contain no URL, no date, no Verification_Status, no source record reference, and no text naming the IEA, EIA, UNCTAD, Vortexa, Kpler, or OPEC.
+11. IF a Curated_Dataset record carries a `synthetic` key or an identifier beginning with `demo-`, or a Demo_Dataset record violates criterion 10 or shares an identifier with the Curated_Dataset, or a JSON file under `public/data/` outside `demo/` contains a `synthetic` key, THEN THE build SHALL fail, report the record identifier and field name, and produce no build output.
+12. IF the Demo_Dataset file fails to load or validate in Illustrative_Demo_Mode, THEN THE Terminal SHALL display an error naming the file, SHALL display "Demo data unavailable" in place of each demo figure, SHALL stay in Illustrative_Demo_Mode, and SHALL use no Curated_Dataset value in place of a demo figure.
+13. THE Terminal SHALL hold the App_Mode only in the URL parameter `mode`, writing `mode=demo` in Illustrative_Demo_Mode and omitting the parameter in Historical_Mode, SHALL carry it in every Navigation_Bar link and call-to-action, and SHALL store it in no browser storage. IF the `mode` URL parameter is present and is not exactly `historical` or `demo`, THEN THE Terminal SHALL replace it with `historical`, keep every valid parameter unchanged, display a notice naming `mode` and its default, and announce the notice through a live region.
+14. WHILE Illustrative_Demo_Mode is active, THE Evidence_Panel SHALL, for a Demo_Dataset item, display the Demo_Data_Notice, the Demo_No_Source_Text in place of Source_Records, the fictional assumptions of the item, and every limitation of Requirement 10 criterion 8 plus "synthetic data" and "fictional economies", and SHALL NOT display a Verification_Status, licence, attribution, source link, or Observation_Age for that item.
+15. WHILE Illustrative_Demo_Mode is active, THE Intelligence_Brief SHALL begin with the Demo_Brief_Header, end with the Demo_Brief_Footer, display the Demo_Banner and the labelling of criteria 6 and 7, present the statement "No qualitative dependencies are defined in the demo data." in place of the Qualitative_Label section, and, WHERE print output or a copy-link control is provided, SHALL carry the header, footer, and `mode=demo` into that output.
+16. WHILE Illustrative_Demo_Mode is active, THE Terminal SHALL apply the content boundaries of Requirement 12 criteria 2, 4, 5, and 6 to every demo text and figure, and THE Explore View SHALL display the Demo_Banner, keep the map geometry, layers, feature detail cards, and Source_Records unchanged, display no Demo_Dataset value, Illustrative_Label, or Demo_Marker on the map or on a feature detail card, and state no dependency of any real economy or flow on any demo value.

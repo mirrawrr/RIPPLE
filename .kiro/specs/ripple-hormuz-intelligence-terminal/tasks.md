@@ -11,13 +11,15 @@ The plan follows the approved build order (Requirement 20.3) in four phases. Eac
 - **Phase 3 - Competitive polish** (tasks 15 to 18): Dependency_Graph, visual design and responsive layout, accessibility audit, documentation, deployment readiness, performance measurement.
 - **Phase 4 - Stretch** (task 19, all sub-tasks optional) and **Submission** (tasks 20 and 21).
 
+**Requirement 22 (Illustrative Demo Mode).** Its foundations (schemas and constants 2.6, separation checks 2.7, demo dataset file 2.8, demo loader 2.9, mode codec 4.20, mode state 5.8) may run in the Phase 1 and early Phase 2 waves. The demo user interface follows the Historical four-View journey: the toggle and banner (5.9) and the demo branches inside 7.6, 7.7, 8.1, 9.4, 10.1 and 12.1 are added only after the Historical path of each View is finished. Demo branches exist only for the Overview, Scenario Lab, Evidence_Panel and Intelligence_Brief, plus the banner on all four Views. Explore is unchanged (map data stays Curated_Dataset only). The Scenario_Engine is unchanged and mode-unaware.
+
 Rules that apply to every task:
 
-- **Data integrity (mandatory).** Real-world figures, source details, country shares, dependencies and map or graph facts are entered into the Curated_Dataset only by the developer, after checking each value, unit, reference period, publication and licence against the cited source. An implementing agent must never invent, estimate, interpolate or recall such values from memory. Where verified data cannot be found, the outcome of the task is a qualitative-only record or an explicit "unavailable" state (Requirements 4.6 to 4.8, 12.3), never a placeholder number.
-- **Fixture data is test-only.** Tests use clearly synthetic fixtures that live under `tests/` and are never copied into `public/data/`.
+- **Data integrity (mandatory).** Real-world figures, source details, country shares, dependencies and map or graph facts are entered into the Curated_Dataset only by the developer, after checking each value, unit, reference period, publication and licence against the cited source. An implementing agent must never invent, estimate, interpolate or recall such values from memory. Where verified data cannot be found, the outcome of the task is a qualitative-only record or an explicit "unavailable" state (Requirements 4.6 to 4.8, 12.3), never a placeholder number. The Demo_Dataset (Requirement 22) is the only place an agent may author numeric values, because they are synthetic, round and fictional, and carry no real source, and it holds no EIA, IEA, UNCTAD, Vortexa, Kpler or OPEC figure or aggregate.
+- **Synthetic data placement.** Synthetic data lives only in `tests/` (fixtures) or in the single, validated `public/data/demo/demo-dataset.json` (Requirement 22). No synthetic value enters any other `public/data/` file, and Historical mode never loads, displays or calculates with demo values.
 - **Continuous requirements.** Requirements 4, 12, 14 and 18 are addressed in every phase for the features that phase delivers: sources, labels, accessibility checks and tests ship with the feature, not after it.
 - **Optional marker.** Only Phase 4 items and truly non-core extras carry `*`. Calculation property tests, data verification, schema tests and accessibility checks are mandatory.
-- **Recorded user decisions.** Licence: MIT. Hosting: Cloudflare Pages (primary). Basemap: MapTiler Cloud is the preferred candidate only, not approved until verified (task 11.3). Sources: the US EIA "World Oil Transit Chokepoints" publication is the primary candidate for historical Hormuz oil and LNG transit figures; IEA and UNCTAD are supplementary candidates for documented dependencies and context. No real-world value is entered until it is individually verified against its source, dated, and checked for reuse permissions.
+- **Recorded user decisions.** Licence: MIT. Hosting: Cloudflare Pages (primary). Basemap: MapTiler Cloud is the preferred candidate only, not approved until verified (task 11.3). Sources: the US EIA "World Oil Transit Chokepoints" publication is the primary candidate for historical Hormuz oil and LNG transit figures; IEA and UNCTAD are supplementary candidates for documented dependencies and context. No real-world value is entered until it is individually verified against its source, dated, and checked for reuse permissions. Task 3.1 approved link-only treatment of the EIA transit aggregates: they are not packaged in production datasets, historical baselines show as unavailable with a link to EIA, and IEA and UNCTAD stay excluded from MVP production data.
 - **Commit and deploy continuously.** The repository is public from task 1.4 and the Cloudflare Pages deployment runs from task 5.7. Each milestone and checkpoint ends with a commit and push, and each checkpoint confirms the Cloudflare deployment still works.
 - **No performance claim** appears in the README, UI or submission material until the measurement in task 17.3 is recorded (Requirement 16.6).
 
@@ -89,10 +91,44 @@ Rules that apply to every task:
   - [ ] 2.5 Implement the dataset loader and `DatasetProvider`
     - Fetch each dataset file separately using `import.meta.env.BASE_URL`, validate with the Zod schemas, and expose `{ status, dataset, fileErrors }` per file.
     - Required observations without a Source_Record are excluded from engine input and flagged as "Source unavailable". An unreadable version or build date yields "Dataset version unavailable".
+    - The Curated loader never fetches anything under `/data/demo/` (demo loading is task 2.9).
     - Acceptance: a failing file produces an error naming that file while other files stay available (tested with mocked fetch).
     - Prerequisites: 2.1, 1.3.
-    - _Requirements: 4.10, 12.11, 16.7_
+    - _Requirements: 4.10, 12.11, 16.7, 22.2_
     - _Design: DatasetProvider, Data flow summary, Error Handling_
+
+  - [ ] 2.6 Add the demo constants, schemas and demo generators
+    - Add to `src/config/constants.ts`: the exact Demo strings (Demo_Banner_Text, Demo_Data_Notice, Demo_No_Source_Text, Demo_Reference_Statement, Demo_Brief_Header, Demo_Brief_Footer, Demo_Title_Prefix and document-title prefix, Mode_Toggle labels, Mode_Announcements, Demo_Marker, `ILLUSTRATIVE_LABEL`), `DEMO_ID_PREFIX = 'demo-'`, `APP_MODES`, `DEFAULT_APP_MODE = 'historical'`. `CLASS_LABELS` and `ClassLabel` are not modified. Extend `constants.test.ts` so the new exact strings also appear verbatim in `requirements.md` and are included in the "no hard-coded copies" scan.
+    - Add `DemoFlowSchema`, `DemoDependencyShareSchema` and `DemoDatasetSchema` to `src/data/schema.ts` as additive exports (`CuratedDatasetSchema` and its record schemas are not modified). Add `tests/schema/demo-schema.test.ts` and `tests/generators.demo.ts` (valid Demo_Dataset arbitraries).
+    - Acceptance: existing schema and constants tests pass unmodified in behaviour; a demo record with `sourceRecordIds` or `verificationStatus` is rejected; a Curated observation with a `synthetic` key is rejected.
+    - Prerequisites: 2.1, 1.3.
+    - _Requirements: 22.1, 22.6, 22.7, 22.8, 22.10_
+    - _Design: Illustrative Demo Mode, Data Models (Demo_Dataset)_
+
+  - [ ] 2.7 Implement the demo separation checks and their property test
+    - In `scripts/validate-dataset.ts`, add exported functions for D1 (Curated is clean), D2 (demo file parses), D3 (demo content rules: `demo-` ids, "(fictional)" economies, "demo" units, multiples of 10, no forbidden source names, no `synthetic` key in any JSON outside `public/data/demo/`) and D5 (demo references resolve and no id is shared with the Curated_Dataset). Any failure exits non-zero, writes no `dist/` output, and names the record id and field. Before 2.8, the validator tolerates the demo file being absent: absence passes and is logged as "demo dataset not present" (D1 and the Curated-side part of D3, the `synthetic` key scan, still run). Once the file exists, the validator validates its contents with `DemoDatasetSchema` and enforces D2, D3 and D5. Add a unit test for each of the two states (absent passes with the log line; present and invalid fails).
+    - Add unit tests with known-bad fixtures under `tests/fixtures/`.
+    - Write the Property 20 test in `tests/properties/p20-dataset-separation.test.ts` (at least 100 runs, tagged `// Feature: ripple-hormuz-intelligence-terminal, Property 20`).
+    - **Property 20: Dataset separation**
+    - **Validates: Requirements 22.10, 22.11**
+    - Prerequisites: 2.2, 2.6, 4.6.
+    - _Requirements: 22.10, 22.11, 18.9_
+    - _Design: Build-time validation pipeline (Demo separation checks), Correctness Property 20_
+
+  - [ ] 2.8 Author the Demo_Dataset file
+    - Create `public/data/demo/demo-dataset.json` with exactly the approved content in the design (Data Models, Demo_Dataset): one chokepoint, two commodities, flows 1000 per day and 73000 per year (365 days), economies "Demo Economy A (fictional)" to "Demo Economy D (fictional)", oil shares 80, 50, 20, LNG shares 60, 30, and a one-sentence fictional assumption per record that names no real publisher.
+    - Record in `docs/data-sources.md` that the demo file is synthetic, fictional and contains no third-party figure.
+    - Acceptance: validation now runs against the present file: `scripts/validate-dataset.ts` (D1, D2, D3, D5) passes with the log no longer reporting "demo dataset not present", a deliberately corrupted copy of the file under `tests/fixtures/` still fails, and no other `public/data/` file changes.
+    - Prerequisites: 2.7.
+    - _Requirements: 22.10_
+    - _Design: Data Models (Demo_Dataset, approved demo content)_
+
+  - [ ] 2.9 Implement the demo dataset loader and `DemoDatasetProvider`
+    - In new files under `src/data/` (mounting is done in 5.9): fetch `demo/demo-dataset.json` only when invoked in demo mode (URL from `import.meta.env.BASE_URL`), validate with `DemoDatasetSchema`, and expose `{ status: 'idle' | 'loading' | 'ready' | 'error', demo, file }`. On failure the error names `demo/demo-dataset.json`. The loader reads no Curated value and the Curated loader never calls it.
+    - Add unit tests with mocked fetch: idle and zero requests in Historical mode, ready in demo mode, a failed fetch and a schema failure each produce an error naming the file.
+    - Prerequisites: 2.5, 2.6, 2.8.
+    - _Requirements: 22.2, 22.12_
+    - _Design: Illustrative Demo Mode (structure), Error Handling (demo file)_
 
 - [ ] 3. Phase 1 - Source licensing and verified data (MANDATORY, developer-verified)
   - [x] 3.1 Source and licence review (mandatory)
@@ -104,30 +140,36 @@ Rules that apply to every task:
     - _Requirements: 4.1, 4.2, 4.9_
     - _Design: Meaning of "verified", Technical Trade-offs and Risks (licence terms)_
 
-  - [ ] 3.2 Verify and enter the crude oil and petroleum liquids baseline (mandatory)
-    - Developer locates the Hormuz transit figure for crude oil and petroleum liquids, first in the US EIA "World Oil Transit Chokepoints" publication and otherwise in another source cleared in 3.1, confirms reuse is permitted, and checks value, unit, time basis (per day or per year) and reference period against the cited publication.
-    - Only after that check, add the Source_Record (verification status, verification date, "checked against the cited publication" statement) to `public/data/source-records.json` and the observation to `public/data/historical-observations.json`, unit and time basis unchanged, with `periodDayCount` if per-year.
-    - If no verified figure is found, enter nothing; record the outcome in `docs/data-verification-log.md` and the Overview shows "unavailable". The agent must not supply a figure.
-    - Acceptance: `scripts/validate-dataset.ts` passes; the verification log lists value, source, page or table reference, and date checked.
+  - [ ] 3.2 Enter the EIA citation and link record; no crude oil and petroleum liquids baseline value (mandatory)
+    - Follows the Task 3.1 link-only decision (`docs/data-sources.md`, "Final source-review decision (2026-11-27)"). The EIA transit aggregates recorded there are not redistributable under that decision, so no Historical_Observation for the oil baseline is entered, and no transit aggregate value is packaged in any production dataset.
+    - Permitted entry: citation, source-link and reviewed-metadata Source_Records only, for example one EIA Source_Record for "World Oil Transit Chokepoints" holding title, publisher, URL, last-updated date, reference period, units, licence and attribution wording as approved in 3.1, and `verificationStatus`. The record contains no transit aggregate value, and no `historical-observations.json` entry is added for the oil baseline.
+    - Dates: keep the original publication date and the verified last-updated date distinct. 2026-03-03 is the last-updated date only; the original publication date is not established. Do not invent a missing date and do not present the last-updated date as a publication date.
+    - Prerequisite sub-step (schema adjustment, approved before entry): `SourceRecordSchema` currently requires `publicationDate` and has no way to label a date as "last updated", so this record cannot be entered faithfully today. The developer approves a schema adjustment before any entry (proposed: optional `publicationDate` plus a date-kind or last-updated field, with the Evidence_Panel label "Last updated", and the "not available" label of Requirements 10.4 and 10.5 for a missing publication date). The proposal is recorded in the design (Data Models, "Last-updated dates", status PENDING approval). Requirement 4.2 does not list a publication date, so no criterion change is expected. If a requirement wording change proves unavoidable, it is proposed here and reported, not edited silently. This task does not implement the schema change; the approved adjustment is implemented under its own approved change before the record is entered.
+    - The state of the oil baseline is "unavailable" in Historical_Mode: the Overview shows "Source unavailable" with the EIA link (Requirements 2.3, 4.10), and the engine reports "not calculable" (Requirement 7.15).
+    - The agent must not supply, recall or estimate any figure.
+    - Acceptance: `scripts/validate-dataset.ts` passes; no transit aggregate value appears anywhere under `public/data/`; `docs/data-verification-log.md` references the Task 3.1 link-only decision and lists the Source_Record, the date kind, and the date checked.
     - Prerequisites: 2.2, 3.1.
-    - _Requirements: 4.2, 4.4, 4.5, 4.13, 4.14, 12.2_
-    - _Design: Dataset file layout, Build-time validation pipeline_
+    - _Requirements: 2.3, 4.2, 4.4, 4.5, 4.10, 4.13, 4.14, 10.4, 10.5, 12.2_
+    - _Design: Dataset file layout, Build-time validation pipeline, Data Models (Last-updated dates)_
 
-  - [ ] 3.3 Verify and enter the LNG baseline (mandatory)
-    - Same procedure as 3.2 for LNG (primary candidate: the US EIA "World Oil Transit Chokepoints" publication), in LNG's own unit, with each value individually verified, dated and checked for reuse permissions. No conversion between oil and LNG units is entered.
-    - If unavailable, record the outcome and enter nothing.
-    - Acceptance: validation passes; log entry complete.
+  - [ ] 3.3 Represent the unavailable oil and LNG baselines and link the EIA citation (mandatory)
+    - Under the Task 3.1 link-only decision, no Historical_Observation is entered for the LNG baseline or the oil baseline. Both historical baselines are represented by the approved unavailable-state behaviour: the Overview text indicator (Requirement 2.3), "Source unavailable" (Requirement 4.10) and "not calculable" (Requirement 7.15).
+    - Provide the EIA citation and source link through the Source_Record from 3.2, without embedding the restricted aggregates recorded in `docs/data-sources.md` (Table 3). No conversion between oil and LNG units is entered, and no unit is invented for a missing value.
+    - Do not silently substitute illustrative values. Demo_Dataset values never appear in Historical_Mode (Requirement 22.2); the demo file is not touched by this task.
+    - Acceptance: with the real dataset, Historical_Mode shows the unavailable state for both baselines, with the EIA link; validation passes; `docs/data-verification-log.md` records the decision for each baseline.
     - Prerequisites: 3.2 (same data files).
-    - _Requirements: 4.2, 4.4, 4.5, 4.13, 4.14, 7.7_
-    - _Design: Dataset file layout_
+    - _Requirements: 2.3, 4.2, 4.4, 4.5, 4.10, 4.13, 4.14, 7.7, 7.15, 22.2_
+    - _Design: Dataset file layout, Illustrative Demo Mode (Historical mode unchanged)_
 
   - [ ] 3.4 Verify dependency shares or record qualitative-only dependencies (mandatory)
-    - IEA and UNCTAD are supplementary candidates for documented dependencies and context. Each value or statement is individually verified against the source, dated and checked for reuse permissions before entry.
-    - For each economy and commodity, the developer enters a numeric Hormuz-transit import share into `public/data/dependency-shares.json` only if a verified Source_Record gives publication, observation period, unit and value for that exact economy and commodity.
-    - Otherwise enter a Qualitative_Dependency (words only, with a verified source) into `public/data/qualitative-dependencies.json`, or nothing. No share is estimated, interpolated or copied from another economy, commodity or period.
-    - Acceptance: validation passes; no economy appears in both files for the same commodity and chokepoint; the log records each decision. A dataset with zero quantified economies is an acceptable outcome.
+    - Include only evidence-supported dependencies, consistent with the schema's denominator (the share of an economy's imports of the commodity that transit the chokepoint, `chokepointTransitImportSharePercent`) and the commodity scope (oil and LNG for the Strait of Hormuz).
+    - Keep destination-flow percentages (the share of Hormuz flows going to destinations) separate from economy import-dependency shares. A destination share is never entered as `chokepointTransitImportSharePercent`.
+    - Under the Task 3.1 link-only decision, no EIA-derived numeric share is entered. IEA and UNCTAD remain excluded from MVP production data. Any qualitative dependency needs its own verified, redistributable Source_Record and wording supported by that source (including a decision on whether paraphrasing is acceptable, flagged in `docs/data-sources.md`). No numerical share and no qualitative statement is invented, estimated, interpolated or copied from another economy, commodity or period.
+    - If no record qualifies, preserve the unavailable or empty state. Zero quantified economies and zero qualitative dependencies are both acceptable outcomes (Requirements 7.17, 8.4, 11.5).
+    - Entries, if any, go into `public/data/dependency-shares.json` (numeric, only with a verified Source_Record giving publication, observation period, unit and value for that exact economy and commodity) or `public/data/qualitative-dependencies.json` (words only).
+    - Acceptance: validation passes; no economy appears in both files for the same commodity and chokepoint; `docs/data-verification-log.md` records each decision, including "none qualify" if that is the outcome.
     - Prerequisites: 3.3.
-    - _Requirements: 4.6, 4.7, 4.8, 12.3_
+    - _Requirements: 4.6, 4.7, 4.8, 7.17, 8.4, 11.5, 12.3_
     - _Design: Dataset file layout, Build-time validation pipeline (step 3)_
 
   - [ ] 3.5 Create dataset release metadata
@@ -255,6 +297,17 @@ Rules that apply to every task:
     - **Validates: Requirements 7.1 to 7.6, 7.9, 7.11 to 7.13, 7.17, 7.18, 18.1**
     - Prerequisites: 4.7.
 
+  - [ ] 4.20 Implement the App_Mode codec with its property and unit tests
+    - In `src/domain/urlCodec.ts`, add `validateAppMode` (exact, case-sensitive), `encodeAppStateToSearchParams` and `decodeAppStateFromSearchParams` per the design (`AppState` is scenario plus mode). They call the task 4.3 functions and leave them unchanged. Encoding writes `mode=demo` only for demo mode and omits `mode` for historical; decoding accepts `historical` and `demo`, replaces any other value with `historical`, keeps every valid parameter, and returns one correction naming `mode` and its default.
+    - Write the Property 19 test in `tests/properties/p19-app-state-roundtrip.test.ts` (at least 100 runs, tagged `// Feature: ripple-hormuz-intelligence-terminal, Property 19`).
+    - Write codec unit tests in `tests/mode-codec.test.ts`, one separate case per rule of Requirement 22.13 that the codec owns: `mode=demo` is written in demo mode; the parameter is omitted in Historical mode; `mode` absent, `historical` and `demo` decode without correction; `Demo`, empty and unknown values are replaced with `historical`; every valid scenario parameter is kept unchanged when `mode` is invalid; exactly one correction is returned and it names `mode` and its default `historical`.
+    - Reducers are not touched here (mode state is task 5.8).
+    - **Property 19: App state URL round-trip**
+    - **Validates: Requirements 22.13**
+    - Prerequisites: 4.3, 2.6, 4.6.
+    - _Requirements: 22.13, 6.10, 18.9_
+    - _Design: Key module interfaces (App mode), Scenario query parameters and state/URL synchronisation, Correctness Property 19_
+
 - [ ] 5. Phase 1 - Shared scenario state and routing foundation
   - [ ] 5.1 Implement `ScenarioProvider` (Context and reducer)
     - In `src/state/`, implement the reducer with `setMagnitude`, `setDuration`, `setScope`, `reset`. Reset restores 25 / 7 / `both` and clears control errors. The reducer is pure and has no DOM or network access.
@@ -300,6 +353,23 @@ Rules that apply to every task:
     - _Requirements: 1.2, 1.4, 1.7, 16.2, 16.3_
     - _Design: Static Deployment and Routing_
 
+  - [ ] 5.8 Implement `ModeProvider` and the pure mode reducer with unit tests
+    - In `src/state/`, implement `AppMode` state (default `'historical'`) with one action, `setMode`. Scenario actions, `reset` and View changes never change it. The reducer is pure. Mounting and URL sync are done in 5.9.
+    - Write reducer unit tests: default is `historical`; `setMode` changes only the mode; for any sequence of `setMagnitude`, `setDuration`, `setScope`, `reset` and View changes the mode is unchanged; a mode change leaves every Active_Scenario value unchanged.
+    - **Validates: Requirements 22.1, 22.3**
+    - Prerequisites: 2.6, 5.1.
+    - _Requirements: 22.1, 22.3, 18.9_
+    - _Design: Illustrative Demo Mode (structure), Component responsibilities (`ModeProvider`)_
+
+  - [ ] 5.9 Implement mode URL sync, `ModeToggle` and `ModeBanner`
+    - Mount `ModeProvider` and `DemoDatasetProvider` in the app above the router outlet, and make the URL sync hook carry `AppState` through the 4.20 codec: `mode` is read on load and on location changes, corrected with a notice and live-region announcement when invalid, written with `replace` (no history entry on a mode change), and carried in every `NavLink` and call-to-action from state. Add no browser storage.
+    - Build `ModeToggle` (header `<button>`, visible text is its accessible name, labels per Requirement 22.4) and announce the matching Mode_Announcement through the existing live region. Build `ModeBanner` (inside `<header>`, `role="region"` with an `aria-label`, sticky, non-dismissible, dashed 2 px border, Demo_Banner_Text, and a "Return to Historical mode" button that sets Historical mode and moves focus to `ModeToggle`). The header shows the Demo_Reference_Statement in demo mode (through the shared `ReferenceStatement` component from 7.7).
+    - Write unit tests: toggle name and keyboard operation, banner present on all four Views only in demo mode and absent in Historical mode, banner return control and focus, no history entry per mode change, Historical session makes zero requests to `/data/demo/`, and demo-load failure keeps demo mode with the named-file error.
+    - Write one separate test per rule of Requirement 22.13 owned here: (a) `mode` is carried in every Navigation_Bar link; (b) `mode` is carried in every call-to-action; (c) no browser storage is read or written (local storage, session storage and cookies are spied and untouched); (d) an invalid `mode` is replaced with `historical`, keeping every valid parameter; (e) a notice naming `mode` and its default is displayed; (f) that notice is announced through the live region. Add a test that, in demo mode, the document title begins with "[Illustrative demo] " and that the title prefix is removed on return to Historical mode (Requirement 22.7).
+    - Prerequisites: 5.3, 5.5, 5.8, 4.20, 2.9, 7.7.
+    - _Requirements: 22.1, 22.3, 22.4, 22.5, 22.8, 22.12, 22.13, 22.16_
+    - _Design: Component tree, Component responsibilities (`ModeToggle`, `ModeBanner`, URL sync hook), Accessibility (mode toggle and banner), Static Deployment and Routing (query parameters)_
+
 - [ ] 6. Checkpoint - Phase 1 review
   - Run unit, property and schema tests and `npm run build`; start the app and click through the four placeholder Views, confirm the scenario survives navigation and the URL updates without extra history entries.
   - Review `docs/data-verification-log.md` for completeness.
@@ -339,33 +409,41 @@ Rules that apply to every task:
 
   - [ ] 7.6 Implement `selectViewModel`
     - In `src/domain/viewModel.ts`, derive from dataset, Active_Scenario and Analysis_Date every displayed source title, reference period, Observation_Age, unit, Period_Day_Count, Class_Label, assumption, and Evidence_Panel reference, keyed by `commodityId` with no combined entry. Run `calculate` and pass through its result. All Views read from this module.
-    - Prerequisites: 7.1, 7.3, 2.5, 4.7.
-    - _Requirements: 7.10, 12.1, 12.12_
-    - _Design: Cross-view consistency and content rules (single derived view-model layer)_
+    - Complete and test the Historical branch first. Then make the selector mode-aware: `selectViewModel({ mode, dataset, demo, scenario, analysisDate })` returns a discriminated union. The demo branch maps `DemoFlow` to `FlowInput` and `DemoDependencyShare` to `DependencyShareInput` through the fixed table `{ 'demo-oil': 'oil', 'demo-lng': 'lng' }`, calls the unchanged `calculate()` with no mode indicator, types its labels as `'Illustrative' | 'Hypothetical' | 'Calculated'` and the Historical labels as `ClassLabel`, adds the Demo_Marker to every Hypothetical and Calculated figure, supplies Demo_No_Source_Text, the Demo_Title_Prefix for chart titles and data-table captions, and the "Illustrative demo." announcement prefix (at most 150 characters), and yields `demoStatus` `'loading' | 'error'` with "Demo data unavailable" figures when the demo data is not ready. The demo branch never reads a Curated baseline or share.
+    - Write unit tests for the demo branch, one separate test per rule of Requirements 22.6 and 22.7 (each independently failing): (a) every figure has exactly one label; (b) synthetic baseline flows and share inputs are "Illustrative"; (c) scenario parameters and the Period_Day_Count are "Hypothetical"; (d) Scenario_Engine outputs are "Calculated"; (e) the label "Historical" never appears; (f) the Demo_Marker is adjacent to every "Hypothetical" and "Calculated" figure; (g) Demo_No_Source_Text accompanies each synthetic input; (h) no Observation_Age; (i) no Older_Period_Notice; (j) no Source_Record title; (k) chart titles and data-table captions begin with the Demo_Title_Prefix; (l) each result announcement begins with "Illustrative demo." and is at most 150 characters including the prefix. Also assert engine output identical to calling `calculate()` directly.
+    - Write the Property 18 test in `tests/properties/p18-historical-no-synthetic.test.ts` (at least 100 runs, tagged `// Feature: ripple-hormuz-intelligence-terminal, Property 18`), using `tests/generators.demo.ts` from 2.6.
+    - **Property 18: Historical mode never displays a synthetic value**
+    - **Validates: Requirements 22.2**
+    - Prerequisites: 7.1, 7.3, 2.5, 4.7, 2.6.
+    - _Requirements: 7.10, 12.1, 12.12, 22.2, 22.6, 22.7, 22.9, 22.12_
+    - _Design: Cross-view consistency and content rules (single derived view-model layer, demo labelling table), Illustrative Demo Mode (structure), Correctness Property 18_
 
   - [ ] 7.7 Build shared display components
     - Create `ClassLabel`, `ExposureDisclaimer` (the only way an index value is rendered), `ReferenceStatement`, `ObservationAgeNote` (with Older_Period_Notice, no accuracy wording), `SourceUnavailable`, and `LicenceAttribution`.
-    - Acceptance: a figure cannot be rendered without exactly one Class_Label; an index cannot render without the disclaimer.
-    - Prerequisites: 7.1, 1.3.
-    - _Requirements: 4.9, 4.10, 12.1, 12.5, 12.8, 12.9_
+    - Add the `Illustrative` variant to `ClassLabel` (rendered only from demo view-model labels), a separate `DemoMarker` component (not a Class_Label), and make `ReferenceStatement` mode-aware (Demo_Reference_Statement in demo mode).
+    - Acceptance: a figure cannot be rendered without exactly one Class_Label; an index cannot render without the disclaimer; `Illustrative` cannot be passed from a Historical view-model.
+    - Prerequisites: 7.1, 1.3, 2.6.
+    - _Requirements: 4.9, 4.10, 12.1, 12.5, 12.8, 12.9, 22.6, 22.8_
     - _Design: Cross-view consistency and content rules_
 
   - [ ] 7.8 Write the copy lint test
     - Scan UI strings and rendered text of all four Views for forbidden terms ("loss", "shortfall", "at risk of losing", predictive "impact") and for currency or price figures; fail with the offending string. Allow-list dataset-sourced titles by id.
-    - **Validates: Requirements 12.4, 12.6**
-    - Prerequisites: 8.1, 9.4, 11.5, 12.1.
+    - Render each View in both modes. In demo mode also assert the Demo_Banner_Text is present on all four Views. For the Overview, Scenario Lab, Evidence_Panel and Brief rendered in demo mode, assert as separate cases (Requirement 22.6): the label "Historical" is absent; no Observation_Age text; no Older_Period_Notice; no Source_Record title; every "Hypothetical" and "Calculated" figure has an adjacent Demo_Marker; every synthetic input has Demo_No_Source_Text; each figure has exactly one label of the permitted set.
+    - **Validates: Requirements 12.4, 12.6, 22.5, 22.6, 22.16**
+    - Prerequisites: 8.1, 9.4, 11.5, 12.1, 5.9.
 
 - [ ] 8. Phase 2 - Overview View
   - [ ] 8.1 Implement `OverviewView`
     - Show RIPPLE name, tagline, MVP-scope statement, Reference_Statement, per-commodity Baseline_Transit_Flow (value, own unit and time basis, "Historical" label, Source_Record title, reference period, Observation_Age and Older_Period_Notice where stale), 25-words-or-fewer definitions of the three Class_Labels visible without interaction, the static-data statement, and call-to-action links to Explore and Scenario Lab that keep the scenario.
-    - Missing items render a text "unavailable" indicator and never a number without its label and source title.
-    - Prerequisites: 7.6, 7.7, 5.5, 3.3.
-    - _Requirements: 2.1 to 2.6, 12.8, 12.9_
+    - Missing items render a text "unavailable" indicator and never a number without its label and source title. In Historical mode this stays "Source unavailable" and never shows a demo value.
+    - After the Historical path is complete: add the demo branch (reads the demo view-model): "Illustrative" baselines with Demo_No_Source_Text, no Observation_Age, Older_Period_Notice or source title, the Demo_Reference_Statement, and a definition of the Illustrative_Label of 25 words or fewer added to the class definitions.
+    - Prerequisites: 7.6, 7.7, 5.5, 3.3, 5.8, 2.9.
+    - _Requirements: 2.1 to 2.6, 12.8, 12.9, 22.2, 22.6, 22.8_
     - _Design: OverviewView, Error Handling_
 
   - [ ] 8.2 Write Overview tests
-    - Unit tests: all fields shown with fixture data; unavailable states; definitions word limit; CTA navigation keeps scenario. Add an axe scan of the Overview.
-    - **Validates: Requirements 2.1 to 2.6, 14.1**
+    - Unit tests: all fields shown with fixture data; unavailable states; definitions word limit; CTA navigation keeps scenario. Add an axe scan of the Overview. Add demo-branch cases: labels, no Historical label, definition of 25 words or fewer, and Historical mode unchanged.
+    - **Validates: Requirements 2.1 to 2.6, 14.1, 22.6, 22.8**
     - Prerequisites: 8.1, 5.6.
 
 - [ ] 9. Phase 2 - Scenario Lab, controls and charts
@@ -382,33 +460,35 @@ Rules that apply to every task:
     - Prerequisites: 9.1, 4.5.
 
   - [ ] 9.3 Build SVG chart components with data tables
-    - Hand-rolled `FlowChart` (baseline daily versus reduced daily flow) and `ExposureChart` (ranked, at most 5, no padding). Each has axis labels with quantity and unit, a Class_Label, a non-colour cue (pattern, shape or text label) and an always-present parallel data table. Exposure charts show the disclaimer. A commodity with no Quantified_Economy shows the "no verified country-level data" message and no empty axes.
+    - Hand-rolled `FlowChart` (baseline daily versus reduced daily flow) and `ExposureChart` (ranked, at most 5, no padding). Each has axis labels with quantity and unit, a Class_Label, a non-colour cue (pattern, shape or text label) and an always-present parallel data table. Exposure charts show the disclaimer. A commodity with no Quantified_Economy shows the "no verified country-level data" message and no empty axes. Chart titles and table captions are supplied as text by the view-model, so the demo prefix is applied by 7.6 and needs no mode logic here.
     - Prerequisites: 7.7.
-    - _Requirements: 8.1, 8.2, 8.4, 8.6, 8.7, 8.8, 14.10_
+    - _Requirements: 8.1, 8.2, 8.4, 8.6, 8.7, 8.8, 14.10, 22.7_
     - _Design: Architecture (charts), CommodityResultPanel_
 
   - [ ] 9.4 Implement `CommodityResultPanel` and `ScenarioLabView`
     - One panel per commodity in scope, each showing formulas, every input with Class_Label, unit and source, Period_Day_Count as "Hypothetical" (365 or 366 stated), Baseline_Daily_Flow as "Calculated", daily and cumulative reduced flow as "Calculated", `not calculable` messages naming missing inputs, charts from 9.3, and no combined oil and LNG value.
     - Announce a result summary of at most 150 characters per recalculation, each commodity separately in its own unit.
-    - Prerequisites: 9.1, 9.3, 7.6.
-    - _Requirements: 5.5, 7.1, 7.6, 7.10, 8.1, 8.2, 8.5, 14.9_
+    - After the Historical path is complete: add the demo branch. Inputs show "Illustrative" with Demo_No_Source_Text, the Period_Day_Count and scenario parameters show "Hypothetical" with the Demo_Marker, outputs show "Calculated" with the Demo_Marker, and each result announcement starts with "Illustrative demo." and stays within 150 characters including the prefix. A demo-load failure shows "Demo data unavailable" in place of each demo figure and never a Curated value.
+    - Prerequisites: 9.1, 9.3, 7.6, 5.8, 2.9.
+    - _Requirements: 5.5, 7.1, 7.6, 7.10, 8.1, 8.2, 8.5, 14.9, 22.6, 22.7, 22.12_
     - _Design: CommodityResultPanel, ScenarioLabView_
 
   - [ ] 9.5 Write Scenario Lab tests
-    - Using synthetic fixtures: formulas and labels shown, chart data tables match engine output, no merged commodity text or series, no-economy message, not-calculable state, summary length at most 150 characters, charts update on scenario change.
-    - **Validates: Requirements 7.6, 7.10, 8.1 to 8.8, 14.9**
+    - Using synthetic fixtures: formulas and labels shown, chart data tables match engine output, no merged commodity text or series, no-economy message, not-calculable state, summary length at most 150 characters, charts update on scenario change. Add demo-branch cases: demo title prefix, labels and markers, announcement prefix and length, and the "Demo data unavailable" state.
+    - **Validates: Requirements 7.6, 7.10, 8.1 to 8.8, 14.9, 22.6, 22.7, 22.12**
     - Prerequisites: 9.4.
 
 - [ ] 10. Phase 2 - Evidence Panel
   - [ ] 10.1 Implement `EvidencePanel` and focus context
     - Open and close controls in Explore, Scenario Lab and Brief. Focused-item mode shows Source_Records (publisher, title, publication date, reference period, units, licence and attribution, Verification_Status, link opening in a new tab), assumptions, reference periods with Observation_Age, and limitations. Empty categories show an explicit "none recorded" statement. General mode shows the full limitations list (all items of Requirement 10.8, including no rerouting, stock drawdown or bypass assumption) and all Source_Records. Missing publication date or period shows "not available". Closing returns focus to the opener, or the View `h1`.
+    - After the Historical path is complete: add the demo branch for a Demo_Dataset item (from the demo view-model): the Demo_Data_Notice, Demo_No_Source_Text in place of Source_Records, the item's fictional assumptions, the Requirement 10.8 limitations plus "synthetic data" and "fictional economies", and no Verification_Status, licence, attribution, source link or Observation_Age. A map feature in focus keeps the Curated behaviour.
     - Prerequisites: 5.5, 7.6, 7.7.
-    - _Requirements: 4.9, 7.14, 10.1 to 10.9_
+    - _Requirements: 4.9, 7.14, 10.1 to 10.9, 22.14_
     - _Design: EvidencePanel, Accessibility (focus management)_
 
   - [ ] 10.2 Write Evidence Panel tests
-    - Cover both modes, empty-category statements, missing-field labels, link target and unchanged scenario, limitation list contents, focus return including opener removed, and an axe scan with the panel open.
-    - **Validates: Requirements 10.1 to 10.9, 14.1**
+    - Cover both modes, empty-category statements, missing-field labels, link target and unchanged scenario, limitation list contents, focus return including opener removed, and an axe scan with the panel open. Add the demo-item cases (what is shown and what is absent).
+    - **Validates: Requirements 10.1 to 10.9, 14.1, 22.14**
     - Prerequisites: 10.1, 5.6.
 
   - [ ] 10.3 Connect the Evidence Panel to Scenario Lab outputs
@@ -461,13 +541,14 @@ Rules that apply to every task:
 - [ ] 12. Phase 2 - Intelligence Brief
   - [ ] 12.1 Implement `IntelligenceBriefView`
     - Read-only structured summary: every scenario parameter labelled "Hypothetical"; per-commodity daily and cumulative reduced flow labelled "Calculated" with no combined volume; ranked Quantified_Economies (at most 5, disclaimer shown); a section under the Qualitative_Label for all Qualitative_Dependencies with no numeric value; a no-data notice per commodity without economies; Baseline_Transit_Flow details including Period_Day_Count and Baseline_Daily_Flow; all Source_Records, assumptions, limitations and the Reference_Statement with nothing truncated; Analysis_Date, Build_Date and dataset version. Neutral language only. Includes the Evidence_Panel open control.
+    - After the Historical path is complete: add the demo branch. It begins with the Demo_Brief_Header, ends with the Demo_Brief_Footer, shows the demo labelling, replaces the Qualitative section with "No qualitative dependencies are defined in the demo data.", and keeps the zero-economy notice. Print and copy-link (Phase 4) carry the header, footer and `mode=demo`.
     - Prerequisites: 7.6, 7.3, 10.1, 7.7.
-    - _Requirements: 11.1 to 11.9, 10.1, 12.5_
+    - _Requirements: 11.1 to 11.9, 10.1, 12.5, 22.6, 22.15_
     - _Design: IntelligenceBriefView_
 
   - [ ] 12.2 Write Intelligence Brief tests
-    - Check each section against fixtures, including zero-economy, qualitative-only and not-calculable cases, no combined volume, no truncation, and no prediction wording.
-    - **Validates: Requirements 11.1 to 11.9**
+    - Check each section against fixtures, including zero-economy, qualitative-only and not-calculable cases, no combined volume, no truncation, and no prediction wording. Add the demo-branch cases (header, footer, labelling, qualitative statement).
+    - **Validates: Requirements 11.1 to 11.9, 22.15**
     - Prerequisites: 12.1.
 
 - [ ] 13. Phase 2 - End-to-end journey and accessibility gates
@@ -486,9 +567,17 @@ Rules that apply to every task:
     - **Validates: Requirements 3.8, 3.9**
     - Prerequisites: 11.5, 5.6.
 
+  - [ ] 13.4 Write the demo-mode end-to-end and axe tests
+    - In `tests/e2e/demo-mode.spec.ts` (small): toggle into demo mode by keyboard and back through the banner return control (focus lands on the toggle), banner visible on all four Views, `?mode=demo` reload, scenario and View preserved across the toggle, invalid `mode` notice, an axe scan of each View in demo mode (zero A/AA violations), and zero requests to `/data/demo/` during a full Historical journey.
+    - **Validates: Requirements 22.1, 22.2, 22.3, 22.4, 22.5, 22.13, 14.1, 18.6, 18.9**
+    - Prerequisites: 8.1, 9.4, 10.3, 11.5, 12.1, 5.9, 5.6.
+    - _Requirements: 22.1 to 22.5, 22.13, 22.16_
+    - _Design: Testing Strategy (end-to-end), Accessibility (mode toggle and banner)_
+
 - [ ] 14. Checkpoint - Phase 2 MVP review
   - Run the full test suite (unit, property, e2e, axe) and `npm run build`; run the app and walk the five-step user journey by hand.
-  - Confirm the four-View journey is complete before any Phase 3 work starts (Requirement 20.7).
+  - Review that the four-View journey is complete before Phase 3 work is started (Requirement 20.7). This is a review hold point, and the Phase 3 tasks follow it in the waves.
+  - Toggle between the modes by hand and confirm Historical mode shows "Source unavailable" where data is missing (never a demo value), and demo mode shows the banner on all four Views with the Explore map unchanged.
   - Commit and push the milestone, then confirm the Cloudflare Pages deployment still works (routes, refresh, scenario parameters, map and dataset loading).
   - Ensure all tests pass, ask the user if questions arise.
 
@@ -562,15 +651,17 @@ Rules that apply to every task:
     - _Design: Technical Trade-offs and Risks_
 
   - [ ] 17.4 Final data and licence audit (mandatory, developer)
-    - Developer re-checks every figure in `public/data/` against its cited source and licence, confirms each Source_Record's attribution text is displayed in the UI, and confirms no figure lacks a Class_Label or source. Record the sign-off date in `docs/data-verification-log.md`.
-    - Prerequisites: 15.1, 11.2, 3.4.
-    - _Requirements: 4.1 to 4.9, 12.1, 12.3_
+    - Developer re-checks every figure in `public/data/` (outside `demo/`) against its cited source and licence, confirms each Source_Record's attribution text is displayed in the UI, and confirms no figure lacks a Class_Label or source. Confirm that no `synthetic` key exists in any file outside `public/data/demo/` and that `public/data/demo/demo-dataset.json` holds no third-party figure (the 2.7 checks pass). Confirm that no EIA transit aggregate value appears anywhere in `public/data/` (link-only decision of 3.1). Record the sign-off date in `docs/data-verification-log.md`.
+    - Acceptance includes: the demo dataset is present and valid in the production build (`dist/data/demo/demo-dataset.json` exists and passes D1, D2, D3 and D5). Because the demo file ships in production, absence is a failure at this stage: if the validator has no option that fails on a missing demo file, add a small one (for example a strict flag enabled for the production build and CI) and a unit test for it, since the tolerance in 2.7 applies only until 2.8.
+    - Prerequisites: 15.1, 11.2, 3.4, 2.7, 2.8.
+    - _Requirements: 4.1 to 4.9, 12.1, 12.3, 22.10, 22.11_
     - _Design: Meaning of "verified"_
 
   - [ ] 17.5 Write the README
     - Headings for: description of RIPPLE, Frankenstein theme connection, how Kiro was used (specs, steering, hooks), setup instructions that run without undocumented steps, the licence (MIT), and the data source list. Include dataset version, each source's reference period and licence, the Reference_Statement, all limitations from Requirement 10.8, basemap attribution, and measured performance only as recorded in `docs/performance.md`.
-    - Prerequisites: 17.3, 17.4, 11.3, 17.1.
-    - _Requirements: 19.3, 19.5, 19.6, 19.7, 16.6_
+    - Add a judging note, after the Historical description: Historical mode is the default, Illustrative demo mode uses synthetic and fictional data only, and it opens with `?mode=demo` or the header toggle.
+    - Prerequisites: 17.3, 17.4, 11.3, 17.1, 5.9.
+    - _Requirements: 19.3, 19.5, 19.6, 19.7, 19.8, 16.6_
     - _Design: Static Deployment and Routing_
 
   - [ ] 17.6 Repository audit, CI and polish
@@ -592,13 +683,13 @@ Rules that apply to every task:
     - Prerequisites: 15.4.
 
   - [ ]* 19.2 Print layout for the Intelligence Brief
-    - Print stylesheet containing all content of Requirement 11.1 to 11.8 with Class_Labels retained.
-    - _Requirements: 21.2_
+    - Print stylesheet containing all content of Requirement 11.1 to 11.8 with Class_Labels retained. In demo mode the print output carries the Demo_Brief_Header and Demo_Brief_Footer.
+    - _Requirements: 21.2, 22.15_
     - Prerequisites: 12.2.
 
   - [ ]* 19.3 Copy-link control
-    - Copy a URL restoring the Active_Scenario; on failure show the full URL as selectable text with a notice.
-    - _Requirements: 21.3_
+    - Copy a URL restoring the Active_Scenario (and `mode=demo` in demo mode); on failure show the full URL as selectable text with a notice.
+    - _Requirements: 21.3, 22.15_
     - Prerequisites: 19.2.
 
   - [ ]* 19.4 Escape and outside-tap closing for the drawer
@@ -631,13 +722,17 @@ Rules that apply to every task:
 ## Notes
 
 - Tasks marked with `*` are optional and can be skipped without affecting the MVP; only Phase 4 items are marked optional.
-- Property tests for Properties 1 to 17 are mandatory sub-tasks, each in its own file, with at least 100 runs and a `// Feature: ripple-hormuz-intelligence-terminal, Property N` comment.
+- Property tests for Properties 1 to 20 are mandatory (never marked optional), each in its own file, with at least 100 runs and a `// Feature: ripple-hormuz-intelligence-terminal, Property N` comment. Properties 1 to 17 are separate sub-tasks. To keep the plan lean, Properties 18, 19 and 20 are written inside the tasks that build their subject: 18 in 7.6 (view-model), 19 in 4.20 (mode codec), 20 in 2.7 (separation checks).
+- Requirement 22 (Illustrative Demo Mode): foundations 2.6 to 2.9, 4.20 and 5.8 may run in the Phase 1 waves, and the demo UI (5.9 and the demo branches in 7.6, 7.7, 8.1, 9.4, 10.1, 12.1) follows the Historical four-View journey. Demo labelling and mode preservation are covered by the view-model, copy-lint and mode-reducer unit tests (7.6, 7.8, 5.8) rather than separate property tasks. Explore has no demo branch. The Scenario_Engine is unchanged.
+- Synthetic data lives only in `tests/` fixtures or the single `public/data/demo/demo-dataset.json`; the demo file ships in the production deployment; the mode is held only in the URL (`mode=demo`) with no saved preference.
 - Data tasks (3.2 to 3.4, 11.2, 15.1, 17.4) require the developer to check values against the cited publication. The outcome may be qualitative-only records or nothing; that is a valid and complete result.
 - User decisions recorded: MIT licence (1.2, 17.5), Cloudflare Pages as primary host (5.7, 17.1, 20.2), MapTiler Cloud as preferred but unapproved basemap candidate (11.3), US EIA "World Oil Transit Chokepoints" as primary source with IEA and UNCTAD supplementary (3.1 to 3.4).
 - Decisions still open: whether MapTiler Cloud passes the verification in 11.3, and whether verified country shares exist (3.4).
 - Dependency notes: 1.4 follows 1.2 and precedes the dataset work; 5.7 follows 5.5 and 1.4; 17.1 builds on 5.7; 17.6 builds on 1.4; 20.2 builds on 17.1.
 - Main risks: no verified country-level shares (the app then shows qualitative dependencies only), a source licence blocking redistribution, basemap terms, and the solo-developer schedule (the Phase 3 graph and polish can slip without breaking the MVP).
-- Each phase checkpoint is a hold point where the app is run, tested and reviewed before the next phase begins.
+- Each phase checkpoint is a review hold point where the app is run, tested and reviewed, not a dependency gate unless a task lists it as a prerequisite.
+- Checkpoints 6 and 18 are listed in waves after some tasks of later phases; the dependency graph does not make those tasks wait for them, so they are review hold points, not dependency gates.
+- Link-only data decision (Task 3.1): no EIA transit aggregate value is packaged in production data. Tasks 3.2 to 3.4 therefore enter citation and link records and unavailable or empty states only. The Source_Record schema adjustment needed for the EIA last-updated date is a pending approval in Task 3.2 (design, Data Models, "Last-updated dates").
 
 ## Task Dependency Graph
 
@@ -646,21 +741,25 @@ Rules that apply to every task:
   "waves": [
     { "id": 0, "tasks": ["1.1"] },
     { "id": 1, "tasks": ["1.2", "1.3", "2.1", "3.1", "4.1", "4.6"] },
-    { "id": 2, "tasks": ["1.4", "2.2", "2.5", "3.5", "4.2", "4.3", "4.7"] },
-    { "id": 3, "tasks": ["2.3", "2.4", "3.2", "4.4", "4.5", "4.8", "4.9", "4.10", "4.11", "4.12", "4.13", "4.14", "4.15", "4.16", "4.17", "4.18", "4.19", "5.1", "7.1", "7.3"] },
-    { "id": 4, "tasks": ["3.3", "5.2", "5.3", "7.2", "7.4", "7.5", "7.7"] },
-    { "id": 5, "tasks": ["3.4", "5.4", "5.5", "7.6"] },
-    { "id": 6, "tasks": ["5.6", "5.7", "8.1", "9.1", "9.3", "10.1", "11.1", "11.3"] },
-    { "id": 7, "tasks": ["8.2", "9.2", "9.4", "10.2", "11.2", "11.4", "12.1"] },
-    { "id": 8, "tasks": ["9.5", "10.3", "11.5", "12.2"] },
-    { "id": 9, "tasks": ["7.8", "11.6", "13.1", "13.2", "13.3"] },
-    { "id": 10, "tasks": ["15.1", "15.2", "16.1", "17.1"] },
-    { "id": 11, "tasks": ["15.3", "16.2", "17.2", "17.4"] },
-    { "id": 12, "tasks": ["15.4", "16.3", "16.4", "17.3"] },
-    { "id": 13, "tasks": ["17.5"] },
-    { "id": 14, "tasks": ["17.6", "19.1", "19.2", "19.4", "19.5"] },
-    { "id": 15, "tasks": ["19.3", "20.1"] },
-    { "id": 16, "tasks": ["20.2"] }
+    { "id": 2, "tasks": ["1.4", "2.2", "2.5", "2.6", "3.5", "4.2", "4.3", "4.7"] },
+    { "id": 3, "tasks": ["2.3", "2.4", "2.7", "3.2", "4.4", "4.5", "4.8", "4.9", "4.10", "4.11", "4.12", "4.13", "4.14", "4.15", "4.16", "4.17", "4.18", "4.19", "4.20", "5.1", "7.1", "7.3"] },
+    { "id": 4, "tasks": ["2.8", "3.3", "5.2", "5.3", "5.8", "7.2", "7.4", "7.5", "7.7"] },
+    { "id": 5, "tasks": ["2.9", "3.4", "5.4", "5.5", "7.6"] },
+    { "id": 6, "tasks": ["5.6", "5.7", "5.9", "8.1", "9.1", "9.3", "10.1", "11.1", "11.3"] },
+    { "id": 7, "tasks": ["6"] },
+    { "id": 8, "tasks": ["8.2", "9.2", "9.4", "10.2", "11.2", "11.4", "12.1"] },
+    { "id": 9, "tasks": ["9.5", "10.3", "11.5", "12.2"] },
+    { "id": 10, "tasks": ["7.8", "11.6", "13.1", "13.2", "13.3", "13.4"] },
+    { "id": 11, "tasks": ["14"] },
+    { "id": 12, "tasks": ["15.1", "15.2", "16.1", "17.1"] },
+    { "id": 13, "tasks": ["15.3", "16.2", "17.2", "17.4"] },
+    { "id": 14, "tasks": ["15.4", "16.3", "16.4", "17.3"] },
+    { "id": 15, "tasks": ["17.5"] },
+    { "id": 16, "tasks": ["17.6", "19.1", "19.2", "19.4", "19.5"] },
+    { "id": 17, "tasks": ["18"] },
+    { "id": 18, "tasks": ["19.3", "20.1"] },
+    { "id": 19, "tasks": ["20.2"] },
+    { "id": 20, "tasks": ["21"] }
   ]
 }
 ```
