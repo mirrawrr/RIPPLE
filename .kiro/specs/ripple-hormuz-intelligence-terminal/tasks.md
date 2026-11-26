@@ -67,7 +67,7 @@ Rules that apply to every task:
     - _Requirements: 4.2, 4.4, 4.6, 4.8, 4.13, 9.2, 17.1, 17.2_
     - _Design: Key module interfaces (Dataset schema), Data Models_
 
-  - [ ] 2.2 Implement `scripts/validate-dataset.ts` and wire it as `prebuild`
+  - [x] 2.2 Implement `scripts/validate-dataset.ts` and wire it as `prebuild`
     - Implement the cross-record checks from the design pipeline: every `sourceRecordIds` reference resolves to a verified Source_Record, per-year observations have `periodDayCount` consistent with leap-year status, graph edges resolve to nodes and have sources, no date later than `buildDate`, `end >= start`, all referenced ids declared, no economy/commodity/chokepoint appearing in both shares and qualitative records, supported `schemaVersion` allow-list.
     - Export the validation functions so tests can call them directly. On any violation, print one line per violation (record id and field), exit non-zero and write no `dist/` output.
     - Acceptance: a known-bad fixture makes the script exit non-zero; an empty-but-valid dataset passes.

@@ -128,6 +128,18 @@
         "chatSessionId": "sess_714b93a1-26d7-4afb-a455-658a18f3575a",
         "timestamp": 1795641862150
       }
+    ],
+    "2.2 Implement `scripts/validate-dataset.ts` and wire it as `prebuild`": [
+      {
+        "executionId": "c0fb73e6-3bf7-4043-b5aa-c559a8aa0e58",
+        "chatSessionId": "sess_714b93a1-26d7-4afb-a455-658a18f3575a",
+        "timestamp": 1795723816919
+      },
+      {
+        "executionId": "c0fb73e6-3bf7-4043-b5aa-c559a8aa0e58",
+        "chatSessionId": "sess_714b93a1-26d7-4afb-a455-658a18f3575a",
+        "timestamp": 1795724491366
+      }
     ]
   }
 }
