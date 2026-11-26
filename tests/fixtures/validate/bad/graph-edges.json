@@ -1,0 +1,11 @@
+[
+  {
+    "id": "bad-edge-dangling",
+    "sourceNodeId": "test-node-a",
+    "targetNodeId": "bad-missing-node",
+    "relationshipDescription": "Synthetic",
+    "sourceRecordIds": [
+      "test-source-1"
+    ]
+  }
+]

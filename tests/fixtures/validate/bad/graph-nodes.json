@@ -1,0 +1,7 @@
+[
+  {
+    "id": "test-node-a",
+    "type": "transport",
+    "name": "Test Node A"
+  }
+]

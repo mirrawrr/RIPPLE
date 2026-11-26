@@ -1,0 +1,52 @@
+[
+  {
+    "id": "test-obs-day",
+    "datasetId": "test-dataset",
+    "chokepointId": "test-chokepoint",
+    "commodityId": "test-commodity-a",
+    "verificationStatus": "verified",
+    "value": 123.5,
+    "unit": "test-unit",
+    "timeBasis": "per-day",
+    "referencePeriodStart": "2019-01-01",
+    "referencePeriodEnd": "2019-12-31",
+    "sourceRecordIds": [
+      "test-source-1"
+    ]
+  },
+  {
+    "id": "test-obs-year",
+    "datasetId": "test-dataset",
+    "chokepointId": "test-chokepoint",
+    "commodityId": "test-commodity-b",
+    "verificationStatus": "verified",
+    "value": 123.5,
+    "unit": "test-unit",
+    "timeBasis": "per-year",
+    "referencePeriodStart": "2019-01-01",
+    "referencePeriodEnd": "2019-12-31",
+    "sourceRecordIds": [
+      "test-source-1"
+    ],
+    "periodDayCount": {
+      "days": 365,
+      "referenceYear": 2019,
+      "isLeapYear": false
+    }
+  },
+  {
+    "id": "bad-obs-dangling",
+    "datasetId": "test-dataset",
+    "chokepointId": "test-chokepoint",
+    "commodityId": "test-commodity-a",
+    "verificationStatus": "verified",
+    "value": 123.5,
+    "unit": "test-unit",
+    "timeBasis": "per-day",
+    "referencePeriodStart": "2019-01-01",
+    "referencePeriodEnd": "2019-12-31",
+    "sourceRecordIds": [
+      "bad-missing-source"
+    ]
+  }
+]

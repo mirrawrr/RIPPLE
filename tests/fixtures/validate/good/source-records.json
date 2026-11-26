@@ -1,0 +1,17 @@
+[
+  {
+    "id": "test-source-1",
+    "publisher": "Example Publisher",
+    "title": "Synthetic Test Publication",
+    "url": "https://example.org/synthetic",
+    "publicationDate": "2020-01-15",
+    "referencePeriodStart": "2019-01-01",
+    "referencePeriodEnd": "2019-12-31",
+    "unit": "test-unit",
+    "retrievalDate": "2020-02-01",
+    "licence": "Synthetic test licence",
+    "attributionRequirement": "Synthetic attribution text",
+    "verificationStatus": "verified",
+    "verificationDate": "2020-02-02"
+  }
+]

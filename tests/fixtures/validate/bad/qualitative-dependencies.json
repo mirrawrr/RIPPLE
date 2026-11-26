@@ -1,0 +1,18 @@
+[
+  {
+    "datasetId": "test-dataset",
+    "chokepointId": "test-chokepoint",
+    "verificationStatus": "verified",
+    "referencePeriod": {
+      "start": "2019-01-01",
+      "end": "2019-12-31"
+    },
+    "sourceRecordIds": [
+      "test-source-1"
+    ],
+    "id": "bad-qual-conflict",
+    "commodityId": "test-commodity-a",
+    "economyId": "test-economy-1",
+    "description": "Synthetic words only."
+  }
+]
