@@ -123,7 +123,7 @@ Rules that apply to every task:
     - _Requirements: 22.10_
     - _Design: Data Models (Demo_Dataset, approved demo content)_
 
-  - [ ] 2.9 Implement the demo dataset loader and `DemoDatasetProvider`
+  - [x] 2.9 Implement the demo dataset loader and `DemoDatasetProvider`
     - In new files under `src/data/` (mounting is done in 5.9): fetch `demo/demo-dataset.json` only when invoked in demo mode (URL from `import.meta.env.BASE_URL`), validate with `DemoDatasetSchema`, and expose `{ status: 'idle' | 'loading' | 'ready' | 'error', demo, file }`. On failure the error names `demo/demo-dataset.json`. The loader reads no Curated value and the Curated loader never calls it.
     - Add unit tests with mocked fetch: idle and zero requests in Historical mode, ready in demo mode, a failed fetch and a schema failure each produce an error naming the file.
     - Prerequisites: 2.5, 2.6, 2.8.
