@@ -364,12 +364,12 @@ describe('absent and present demo file', () => {
     }
   });
 
-  it('the real public/data directory passes; it logs "demo dataset not present" while the file does not exist (before Task 2.8)', () => {
+  it('the real public/data directory passes with the demo file present and no "demo dataset not present" line (Task 2.8)', () => {
+    expect(existsSync(join(REPO, 'public', 'data', DEMO_FILE))).toBe(true);
     const res = spawnSync(process.execPath, [script], { cwd: REPO, encoding: 'utf8' });
     expect(res.status).toBe(0);
-    const present = existsSync(join(REPO, 'public', 'data', DEMO_FILE));
-    if (present) expect(res.stdout).not.toContain('demo dataset not present');
-    else expect(res.stdout).toContain('validate-dataset: demo dataset not present');
+    expect(res.stdout).not.toContain('demo dataset not present');
+    expect(res.stdout).toContain('validate-dataset: OK');
   });
 
   it('CLI exits 1 on the curated-synthetic fixture and names the leaks', () => {

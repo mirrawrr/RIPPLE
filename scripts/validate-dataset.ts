@@ -638,6 +638,59 @@ export function checkDemoReferences(raw: unknown, curatedIds: ReadonlySet<string
   return out;
 }
 
+/**
+ * D5 (Task 2.8): ids are unique within each demo collection and across the whole demo file
+ * (the dataset id included). Every later occurrence of an id is reported on its own record, field "id".
+ */
+export function checkDemoDuplicateIds(raw: unknown): Violation[] {
+  if (!isRecord(raw)) return [];
+  const out: Violation[] = [];
+  const firstSeen = new Map<string, string>(); // id -> collection of first occurrence
+  for (const { path, id } of demoIdEntries(raw)) {
+    const collection = String(path[0]);
+    const first = firstSeen.get(id);
+    if (first === undefined) {
+      firstSeen.set(id, collection);
+      continue;
+    }
+    const message =
+      first === collection
+        ? `D5: duplicate id "${id}" within ${collection}`
+        : `D5: id "${id}" is also used in ${first === 'datasetId' ? 'the dataset id' : first}; demo ids must be unique across the file`;
+    out.push(demoViolation(locateInDemo(raw, path), message));
+  }
+  return out;
+}
+
+/**
+ * D3 (Task 2.8): demo-dataset.json is the only file allowed under <data-dir>/demo/. Any other file,
+ * of any type and at any depth (nothing is ignored, .gitkeep included), is a violation.
+ * An absent demo directory yields no violation.
+ */
+export function checkDemoDirFiles(dataDir: string): Violation[] {
+  const out: Violation[] = [];
+  const root = join(dataDir, DEMO_DIR);
+  if (!existsSync(root)) return out;
+  const walk = (rel: string): void => {
+    const entries = readdirSync(join(root, rel), { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name));
+    for (const entry of entries) {
+      const entryRel = rel === '' ? entry.name : `${rel}/${entry.name}`;
+      if (entry.isDirectory()) walk(entryRel);
+      else if (`${DEMO_DIR}/${entryRel}` !== DEMO_FILE) {
+        out.push({
+          file: `${DEMO_DIR}/${entryRel}`,
+          collection: 'demo',
+          recordId: '-',
+          field: '(file)',
+          message: `D3: unexpected file under ${DEMO_DIR}/ (only demo-dataset.json is allowed)`,
+        });
+      }
+    }
+  };
+  walk('');
+  return out;
+}
+
 /* --- Combined separation check --- */
 
 /**
@@ -654,6 +707,7 @@ export function checkDemoSeparation(curatedFiles: JsonFiles, demo: unknown): Val
   violations.push(...checkDemoParses(demo));
   violations.push(...checkDemoContent(demo));
   violations.push(...checkDemoReferences(demo, collectCuratedIds(curatedFiles)));
+  violations.push(...checkDemoDuplicateIds(demo));
   return { violations, notices };
 }
 
@@ -753,7 +807,7 @@ export function runValidation(dataDir: string, options: ValidateOptions = {}): V
   const separationNotices = demo.present ? [] : separation.notices;
 
   return {
-    violations: [...loadViolations, ...result.violations, ...separationViolations],
+    violations: [...loadViolations, ...result.violations, ...separationViolations, ...checkDemoDirFiles(dataDir)],
     notices: [...notices, ...result.notices, ...separationNotices],
   };
 }

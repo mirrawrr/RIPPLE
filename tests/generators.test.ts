@@ -22,6 +22,7 @@ import {
   arbDemoWithHistoricalField,
   arbInvalidDemoCase,
 } from './generators.demo';
+import { findForbiddenSourceNames } from '../scripts/validate-dataset.ts';
 import { validateIntegerInRange, validateScenarioInput } from '../src/domain/validation';
 import {
   ChokepointDeclarationSchema,
@@ -305,5 +306,27 @@ describe('dev-only dependency boundary', () => {
       .filter((f) => /\.(ts|tsx)$/.test(f))
       .filter((f) => /from\s+['"]fast-check['"]|from\s+['"][./]*\/?tests\/|require\(['"]fast-check/.test(readFileSync(f, 'utf8')));
     expect(offenders).toEqual([]);
+  });
+});
+
+describe('demo arbitraries: forbidden names', () => {
+  const strings = (node: unknown): string[] =>
+    typeof node === 'string'
+      ? [node]
+      : Array.isArray(node)
+        ? node.flatMap(strings)
+        : typeof node === 'object' && node !== null
+          ? Object.values(node).flatMap(strings)
+          : [];
+
+  it('generated valid demo datasets, flows and shares contain no forbidden whole-term name in any string', () => {
+    fc.assert(
+      fc.property(arbDemoDataset, arbDemoFlow, arbDemoDependencyShare, (d, f, s) => {
+        for (const text of [...strings(d), ...strings(f), ...strings(s)]) {
+          expect(findForbiddenSourceNames(text), text).toEqual([]);
+        }
+      }),
+      { numRuns: 200 },
+    );
   });
 });

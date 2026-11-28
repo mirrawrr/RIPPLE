@@ -164,6 +164,18 @@
         "chatSessionId": "sess_714b93a1-26d7-4afb-a455-658a18f3575a",
         "timestamp": 1795731809649
       }
+    ],
+    "2.8 Author the Demo_Dataset file": [
+      {
+        "executionId": "beac33ef-7392-4a6f-969a-d301a8e6fa81",
+        "chatSessionId": "sess_714b93a1-26d7-4afb-a455-658a18f3575a",
+        "timestamp": 1795861455143
+      },
+      {
+        "executionId": "beac33ef-7392-4a6f-969a-d301a8e6fa81",
+        "chatSessionId": "sess_714b93a1-26d7-4afb-a455-658a18f3575a",
+        "timestamp": 1795862496276
+      }
     ]
   }
 }

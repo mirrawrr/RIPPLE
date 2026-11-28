@@ -356,3 +356,7 @@ Reviewed by: Developer (partial, 2026-11-26)
 Decisions approved: Developer, 2026-11-27
 Final sign-off: Developer, 2026-11-27 (link-only approach)
 Date: 2026-11-27
+
+## Illustrative Demo_Dataset (Task 2.8)
+
+`public/data/demo/demo-dataset.json` is synthetic and fictional. Every value in it is an invented round number, and every economy is fictional. It contains no third-party figure, cites no source, and carries no Source_Record, verification status, date, URL, licence or attribution. It is separate from the Curated_Dataset and is never merged with it. The build-time validator checks it against checks D1 to D5 (schema, content rules, reference resolution, id uniqueness and separation from the Curated files), and it must be the only file under `public/data/demo/`.

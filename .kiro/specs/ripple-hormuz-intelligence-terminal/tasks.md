@@ -115,7 +115,7 @@ Rules that apply to every task:
     - _Requirements: 22.10, 22.11, 18.9_
     - _Design: Build-time validation pipeline (Demo separation checks), Correctness Property 20_
 
-  - [ ] 2.8 Author the Demo_Dataset file
+  - [x] 2.8 Author the Demo_Dataset file
     - Create `public/data/demo/demo-dataset.json` with exactly the approved content in the design (Data Models, Demo_Dataset): one chokepoint, two commodities, flows 1000 per day and 73000 per year (365 days), economies "Demo Economy A (fictional)" to "Demo Economy D (fictional)", oil shares 80, 50, 20, LNG shares 60, 30, and a one-sentence fictional assumption per record that names no real publisher.
     - Record in `docs/data-sources.md` that the demo file is synthetic, fictional and contains no third-party figure.
     - Acceptance: validation now runs against the present file: `scripts/validate-dataset.ts` (D1, D2, D3, D5) passes with the log no longer reporting "demo dataset not present", a deliberately corrupted copy of the file under `tests/fixtures/` still fails, and no other `public/data/` file changes.

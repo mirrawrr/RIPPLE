@@ -22,6 +22,21 @@ import {
 const LETTERS = ['a', 'b', 'c', 'd'] as const;
 const demoId = (...parts: string[]): string => `${DEMO_ID_PREFIX}${parts.join('-')}`;
 
+/**
+ * Fixed vocabulary for every free-text part (ids, names, assumptions). Each entry is a whole ordinary word,
+ * so no generated string can form a forbidden whole-term publisher name.
+ */
+export const DEMO_WORDS = [
+  'alpha', 'bravo', 'cedar', 'delta', 'ember', 'fjord', 'grove', 'harbor', 'island', 'junction',
+  'lantern', 'meadow', 'north', 'orchard', 'pilot', 'quartz', 'river', 'summit', 'tundra', 'upland',
+  'valley', 'willow', 'yonder', 'zephyr',
+] as const;
+const arbWord: fc.Arbitrary<string> = fc.constantFrom(...DEMO_WORDS);
+/** Id fragment: a vocabulary word, optionally followed by a number. */
+const arbIdPart: fc.Arbitrary<string> = fc
+  .tuple(arbWord, fc.option(fc.integer({ min: 0, max: 99 }), { nil: undefined }))
+  .map(([w, n]) => (n === undefined ? w : `${w}-${n}`));
+
 /** Multiple of DEMO_VALUE_MULTIPLE, 0 to 1,000,000. */
 export const arbDemoValue: fc.Arbitrary<number> = fc
   .integer({ min: 0, max: 100_000 })
@@ -39,7 +54,8 @@ export const arbDemoUnit: fc.Arbitrary<string> = fc
 
 /** Fictional assumption sentence naming no publisher. */
 export const arbFictionalAssumption: fc.Arbitrary<string> = fc
-  .stringMatching(/^[a-z]{3,10}( [a-z]{3,10}){0,4}$/)
+  .array(arbWord, { minLength: 1, maxLength: 5 })
+  .map((ws) => ws.join(' '))
   .map((s) => `Round synthetic value for ${s}; it is not an observation.`);
 
 /** Day count for a per-year demo flow: any positive integer, no reference year. */
@@ -56,12 +72,10 @@ export interface DemoDeclaration {
   description?: string;
 }
 
-export const arbDemoChokepointDeclaration: fc.Arbitrary<DemoDeclaration> = fc
-  .stringMatching(/^[a-z]{1,8}$/)
+export const arbDemoChokepointDeclaration: fc.Arbitrary<DemoDeclaration> = arbWord
   .map((s) => ({ id: demoId('chokepoint', s), name: `Demo chokepoint ${s} (illustrative scenario location)` }));
 
-export const arbDemoCommodityDeclaration: fc.Arbitrary<DemoDeclaration> = fc
-  .stringMatching(/^[a-z]{1,8}$/)
+export const arbDemoCommodityDeclaration: fc.Arbitrary<DemoDeclaration> = arbWord
   .map((s) => ({ id: demoId('commodity', s), name: `Demo commodity ${s} (${DEMO_UNIT_MARKER} units)` }));
 
 export const arbDemoEconomyDeclaration: fc.Arbitrary<DemoDeclaration> = fc
@@ -108,10 +122,10 @@ export interface DemoShareRecord {
 }
 
 const arbFlowCore = fc.record({
-  id: fc.stringMatching(/^[a-z0-9]{1,8}$/).map((s) => demoId('flow', s)),
+  id: arbIdPart.map((s) => demoId('flow', s)),
   synthetic: fc.constant(true as const),
-  chokepointId: fc.stringMatching(/^[a-z]{1,8}$/).map((s) => demoId('chokepoint', s)),
-  commodityId: fc.stringMatching(/^[a-z]{1,8}$/).map((s) => demoId('commodity', s)),
+  chokepointId: arbWord.map((s) => demoId('chokepoint', s)),
+  commodityId: arbWord.map((s) => demoId('commodity', s)),
   value: arbDemoValue,
   unit: arbDemoUnit,
   fictionalAssumption: arbFictionalAssumption,
@@ -129,10 +143,10 @@ export const arbDemoFlowPerYear: fc.Arbitrary<DemoFlowRecord> = fc
 export const arbDemoFlow: fc.Arbitrary<DemoFlowRecord> = fc.oneof(arbDemoFlowPerDay, arbDemoFlowPerYear);
 
 export const arbDemoDependencyShare: fc.Arbitrary<DemoShareRecord> = fc.record({
-  id: fc.stringMatching(/^[a-z0-9]{1,8}$/).map((s) => demoId('share', s)),
+  id: arbIdPart.map((s) => demoId('share', s)),
   synthetic: fc.constant(true as const),
-  chokepointId: fc.stringMatching(/^[a-z]{1,8}$/).map((s) => demoId('chokepoint', s)),
-  commodityId: fc.stringMatching(/^[a-z]{1,8}$/).map((s) => demoId('commodity', s)),
+  chokepointId: arbWord.map((s) => demoId('chokepoint', s)),
+  commodityId: arbWord.map((s) => demoId('commodity', s)),
   economyId: fc.constantFrom(...LETTERS).map((l) => demoId('economy', l)),
   chokepointTransitImportSharePercent: arbDemoSharePercent,
   fictionalAssumption: arbFictionalAssumption,

@@ -71,9 +71,8 @@ const names = (vs: Violation[], collection: string, recordId: string): boolean =
 
 /* ---------- Demo side ---------- */
 
-/** Valid demo datasets whose text contains no forbidden name even as a substring (random words could spell one). */
-const FORBIDDEN_SUBSTRING = new RegExp(DEMO_FORBIDDEN_SOURCE_NAMES.join('|'), 'i');
-const arbValidDemo: fc.Arbitrary<DemoDatasetRecord> = arbDemoDataset.filter((d) => !FORBIDDEN_SUBSTRING.test(JSON.stringify(d)));
+/** Valid demo datasets. The generator uses a fixed vocabulary, so no filtering is needed. */
+const arbValidDemo: fc.Arbitrary<DemoDatasetRecord> = arbDemoDataset;
 
 const cloneDemo = (d: DemoDatasetRecord): Rec => JSON.parse(JSON.stringify(d)) as Rec;
 const demoViolations = (curated: Files, demo: unknown): Violation[] => checkDemoSeparation(curated as JsonFiles, demo).violations;
