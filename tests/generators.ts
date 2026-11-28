@@ -9,6 +9,7 @@ import {
   MAGNITUDE_RANGE,
   type CommodityScope,
 } from '../src/config/constants';
+import type { DependencyShareInput, FlowInput } from '../src/engine/types';
 
 /* ---------- Scenario inputs ---------- */
 
@@ -145,26 +146,7 @@ export function arbInvalidNumericString(min: number, max: number): fc.Arbitrary<
 
 /* ---------- Engine inputs (test-only mirror of design.md) ---------- */
 
-/**
- * TEST-ONLY types mirroring design.md "Key module interfaces". The engine types
- * do not exist yet; replace these with imports from the engine in Task 4.7+.
- */
-export interface FlowInput {
-  chokepointId: string;
-  commodityId: string;
-  baselineTransitFlow: number;
-  unit: string;
-  timeBasis: 'per-day' | 'per-year';
-  periodDayCount?: number;
-}
-
-export interface DependencyShareInput {
-  chokepointId: string;
-  commodityId: string;
-  economyId: string;
-  economyName: string;
-  chokepointTransitImportSharePercent: number;
-}
+export type { DependencyShareInput, FlowInput };
 
 const arbSynthId = (prefix: string) =>
   fc.stringMatching(/^[a-z0-9]{1,8}$/).map((s) => `test-${prefix}-${s}`);

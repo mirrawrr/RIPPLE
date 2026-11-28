@@ -187,7 +187,7 @@ Rules that apply to every task:
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.6_
     - _Design: Key module interfaces (Scenario_Input_Validation)_
 
-  - [ ] 4.2 Write property test for input validation
+  - [x] 4.2 Write property test for input validation
     - **Property 12: Scenario input validation accept/reject**
     - Valid strings (optionally padded, zero-prefixed) are accepted and normalised; invalid-case strings are rejected with the exact message. At least 100 runs.
     - Place in `tests/properties/p12-validation.test.ts`.
@@ -218,7 +218,7 @@ Rules that apply to every task:
     - _Requirements: 18.2, 18.3_
     - _Design: Testing Strategy (property-based tests)_
 
-  - [ ] 4.7 Implement the Scenario_Engine
+  - [x] 4.7 Implement the Scenario_Engine
     - In `src/engine/`, implement `calculate(input: EngineInput): EngineResult` per the design: baseline daily flow derivation (Annual_To_Daily_Step), daily and cumulative Hypothetically_Reduced_Flow, Scenario_Exposure_Index, unit passthrough, per-commodity results with no combined entry, `not-calculable` results naming missing inputs, defensive range rejection, empty exposure list when no Quantified_Economy.
     - The engine imports no dataset, DOM or network code and contains no literal `hormuz`, `oil` or `lng` identifiers. It exposes the formula text and input list needed by the UI for transparency.
     - Prerequisites: 1.3.
