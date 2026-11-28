@@ -117,7 +117,8 @@ export function encodeAppStateToSearchParams(s: AppState): URLSearchParams {
 /**
  * Absent `mode` or 'historical' gives historical with no correction. 'demo' gives demo.
  * Any other value gives historical with one correction `mode reset to historical`.
- * A repeated `mode` uses its first value (URLSearchParams.get), as for the scenario parameters.
+ * A repeated `mode` (more than one occurrence) is invalid whatever its values: historical
+ * with one correction.
  */
 export function decodeAppStateFromSearchParams(
   params: URLSearchParams,
@@ -126,7 +127,10 @@ export function decodeAppStateFromSearchParams(
   const { scenario, corrections } = decodeScenarioFromSearchParams(params, defaults.scenario);
   let mode: AppMode = defaults.mode;
   const raw = params.get(URL_PARAM_MODE);
-  if (raw !== null) {
+  if (params.getAll(URL_PARAM_MODE).length > 1) {
+    mode = DEFAULT_APP_MODE;
+    corrections.push(`${URL_PARAM_MODE} reset to ${DEFAULT_APP_MODE}`);
+  } else if (raw !== null) {
     const r = validateAppMode(raw);
     if (r.ok && r.value !== undefined) {
       mode = r.value;

@@ -269,6 +269,28 @@
         "executionId": "b25cf1f8-6b67-415a-b0e8-8b12adeda49c",
         "chatSessionId": "sess_714b93a1-26d7-4afb-a455-658a18f3575a",
         "timestamp": 1795876434162
+      },
+      {
+        "executionId": "0e0054f0-8a6b-4610-aa80-5920378f2f86",
+        "chatSessionId": "sess_714b93a1-26d7-4afb-a455-658a18f3575a",
+        "timestamp": 1795876738958
+      },
+      {
+        "executionId": "0e0054f0-8a6b-4610-aa80-5920378f2f86",
+        "chatSessionId": "sess_714b93a1-26d7-4afb-a455-658a18f3575a",
+        "timestamp": 1795877071247
+      }
+    ],
+    "5.1 Implement `ScenarioProvider` (Context and reducer)": [
+      {
+        "executionId": "0e0054f0-8a6b-4610-aa80-5920378f2f86",
+        "chatSessionId": "sess_714b93a1-26d7-4afb-a455-658a18f3575a",
+        "timestamp": 1795877096567
+      },
+      {
+        "executionId": "0e0054f0-8a6b-4610-aa80-5920378f2f86",
+        "chatSessionId": "sess_714b93a1-26d7-4afb-a455-658a18f3575a",
+        "timestamp": 1795877342581
       }
     ]
   }

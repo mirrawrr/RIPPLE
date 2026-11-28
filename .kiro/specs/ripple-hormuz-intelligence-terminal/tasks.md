@@ -309,7 +309,7 @@ Rules that apply to every task:
     - _Design: Key module interfaces (App mode), Scenario query parameters and state/URL synchronisation, Correctness Property 19_
 
 - [ ] 5. Phase 1 - Shared scenario state and routing foundation
-  - [ ] 5.1 Implement `ScenarioProvider` (Context and reducer)
+  - [x] 5.1 Implement `ScenarioProvider` (Context and reducer)
     - In `src/state/`, implement the reducer with `setMagnitude`, `setDuration`, `setScope`, `reset`. Reset restores 25 / 7 / `both` and clears control errors. The reducer is pure and has no DOM or network access.
     - Prerequisites: 4.1, 1.3.
     - _Requirements: 1.3, 5.5, 5.7_

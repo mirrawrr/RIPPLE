@@ -69,9 +69,26 @@ describe('App_Mode decoding', () => {
     expect(r.corrections[r.corrections.length - 1]).toBe(CORRECTION);
   });
 
-  it('uses the first value of a repeated mode parameter', () => {
-    expect(decode('mode=demo&mode=x').state.mode).toBe('demo');
-    expect(decode('mode=x&mode=demo').state.mode).toBe('historical');
+  it.each(['mode=demo&mode=x', 'mode=x&mode=demo', 'mode=demo&mode=demo', 'mode=historical&mode=historical'])(
+    'treats repeated mode "%s" as invalid: historical with one correction',
+    (q) => {
+      const r = decode(q);
+      expect(r.state.mode).toBe('historical');
+      expect(r.corrections).toEqual([CORRECTION]);
+    },
+  );
+
+  it('keeps valid scenario values when mode is repeated, with only the mode correction', () => {
+    const r = decode('m=37&d=90&c=lng&mode=demo&mode=demo');
+    expect(r.state).toEqual({ scenario, mode: 'historical' });
+    expect(r.corrections).toEqual([CORRECTION]);
+  });
+
+  it('reports a scenario correction plus exactly one mode correction for repeated mode', () => {
+    const r = decode('m=x&mode=demo&mode=demo');
+    expect(r.corrections).toHaveLength(2);
+    expect(r.corrections.filter((c) => c === CORRECTION)).toHaveLength(1);
+    expect(r.corrections[0]).toContain('m');
   });
 });
 
