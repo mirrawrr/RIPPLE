@@ -194,7 +194,7 @@ Rules that apply to every task:
     - **Validates: Requirements 6.1, 6.2, 6.3, 6.4**
     - Prerequisites: 4.1, 4.6.
 
-  - [ ] 4.3 Implement the URL codec
+  - [x] 4.3 Implement the URL codec
     - In `src/domain/urlCodec.ts`, implement `encodeScenarioToSearchParams` and `decodeScenarioFromSearchParams` using parameters `m`, `d`, `c`. Decoding uses 4.1 validation, replaces invalid fields with defaults, keeps valid ones, and returns `corrections` naming each corrected parameter and its default. Encoding is canonical and normalisation is idempotent.
     - Prerequisites: 4.1, 1.3.
     - _Requirements: 1.4, 1.5, 6.10_
