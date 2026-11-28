@@ -258,6 +258,18 @@
         "chatSessionId": "sess_714b93a1-26d7-4afb-a455-658a18f3575a",
         "timestamp": 1795875780209
       }
+    ],
+    "4.20 Implement the App_Mode codec with its property and unit tests": [
+      {
+        "executionId": "b25cf1f8-6b67-415a-b0e8-8b12adeda49c",
+        "chatSessionId": "sess_714b93a1-26d7-4afb-a455-658a18f3575a",
+        "timestamp": 1795875989544
+      },
+      {
+        "executionId": "b25cf1f8-6b67-415a-b0e8-8b12adeda49c",
+        "chatSessionId": "sess_714b93a1-26d7-4afb-a455-658a18f3575a",
+        "timestamp": 1795876434162
+      }
     ]
   }
 }

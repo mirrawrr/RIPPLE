@@ -297,7 +297,7 @@ Rules that apply to every task:
     - **Validates: Requirements 7.1 to 7.6, 7.9, 7.11 to 7.13, 7.17, 7.18, 18.1**
     - Prerequisites: 4.7.
 
-  - [ ] 4.20 Implement the App_Mode codec with its property and unit tests
+  - [x] 4.20 Implement the App_Mode codec with its property and unit tests
     - In `src/domain/urlCodec.ts`, add `validateAppMode` (exact, case-sensitive), `encodeAppStateToSearchParams` and `decodeAppStateFromSearchParams` per the design (`AppState` is scenario plus mode). They call the task 4.3 functions and leave them unchanged. Encoding writes `mode=demo` only for demo mode and omits `mode` for historical; decoding accepts `historical` and `demo`, replaces any other value with `historical`, keeps every valid parameter, and returns one correction naming `mode` and its default.
     - Write the Property 19 test in `tests/properties/p19-app-state-roundtrip.test.ts` (at least 100 runs, tagged `// Feature: ripple-hormuz-intelligence-terminal, Property 19`).
     - Write codec unit tests in `tests/mode-codec.test.ts`, one separate case per rule of Requirement 22.13 that the codec owns: `mode=demo` is written in demo mode; the parameter is omitted in Historical mode; `mode` absent, `historical` and `demo` decode without correction; `Demo`, empty and unknown values are replaced with `historical`; every valid scenario parameter is kept unchanged when `mode` is invalid; exactly one correction is returned and it names `mode` and its default `historical`.
