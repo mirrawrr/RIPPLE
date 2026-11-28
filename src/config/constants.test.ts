@@ -40,6 +40,8 @@ import {
   STALE_THRESHOLD_MONTHS,
   TAGLINE,
   TOP_N_EXPOSURE,
+  SOURCE_UNAVAILABLE_TEXT,
+  DATASET_VERSION_UNAVAILABLE_TEXT,
 } from './constants';
 
 const root = resolve(__dirname, '..', '..');
@@ -118,7 +120,26 @@ const demoNotScanned: Record<string, [string, string]> = {
   DEMO_ANNOUNCEMENT_PREFIX: [DEMO_ANNOUNCEMENT_PREFIX, 'Illustrative demo.'],
 };
 
+const design = readFileSync(
+  join(root, '.kiro/specs/ripple-hormuz-intelligence-terminal/design.md'),
+  'utf8',
+);
+
+describe('dataset availability texts', () => {
+  it('SOURCE_UNAVAILABLE_TEXT is verbatim in requirements.md (Req 4.10)', () => {
+    expect(SOURCE_UNAVAILABLE_TEXT).toBe('Source unavailable');
+    expect(requirements).toContain(`"${SOURCE_UNAVAILABLE_TEXT}"`);
+  });
+
+  it('DATASET_VERSION_UNAVAILABLE_TEXT is verbatim in design.md (Error Handling; Req 12.11 states it without exact wording)', () => {
+    expect(DATASET_VERSION_UNAVAILABLE_TEXT).toBe('Dataset version unavailable');
+    expect(design).toContain(`"${DATASET_VERSION_UNAVAILABLE_TEXT}"`);
+  });
+});
+
 const scanStrings: Record<string, string> = {
+  SOURCE_UNAVAILABLE_TEXT,
+  DATASET_VERSION_UNAVAILABLE_TEXT,
   ...Object.fromEntries(Object.entries(exactStrings).map(([k, [a]]) => [k, a])),
   ...Object.fromEntries(Object.entries(demoScanned).map(([k, [a]]) => [k, a])),
   CONTROL_LABEL_MAGNITUDE: CONTROL_LABELS.magnitudePercent,

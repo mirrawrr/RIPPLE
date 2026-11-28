@@ -25,7 +25,6 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import type { z } from 'zod';
 import {
   DEMO_DATASET_KIND,
   DEMO_FICTIONAL_MARKER,
@@ -34,28 +33,19 @@ import {
   DEMO_UNIT_MARKER,
   DEMO_VALUE_MULTIPLE,
 } from '../src/config/constants.ts';
-import {
-  ChokepointDeclarationSchema,
-  CommodityDeclarationSchema,
-  DatasetDeclarationSchema,
-  DemoDatasetSchema,
-  EconomyDeclarationSchema,
-  GraphEdgeSchema,
-  GraphNodeSchema,
-  HistoricalObservationSchema,
-  DependencyShareSchema,
-  QualitativeDependencySchema,
-  SchemaVersionFileSchema,
-  SourceRecordSchema,
-} from '../src/data/schema.ts';
+import { DemoDatasetSchema, SchemaVersionFileSchema } from '../src/data/schema.ts';
 import type { CuratedDataset } from '../src/data/schema.ts';
+import { COLLECTION_SPECS, VERSION_FILE } from '../src/data/files.ts';
+import type { CollectionKey, CollectionSpec } from '../src/data/files.ts';
+
+// Shared with the runtime loader (src/data/loader.ts); re-exported so existing importers keep working.
+export { COLLECTION_SPECS, VERSION_FILE };
+export type { CollectionKey };
 
 /* ---------- Public types and constants ---------- */
 
 /** Allow-list of supported schema versions (Req 17.2). Extend when a new version ships. */
 export const SUPPORTED_SCHEMA_VERSIONS: readonly string[] = ['1'];
-
-export const VERSION_FILE = 'schema-version.json';
 
 export interface Violation {
   file: string;
@@ -68,29 +58,9 @@ export interface Violation {
 export const formatViolation = (v: Violation): string =>
   `${v.file}:${v.collection}:${v.recordId}:${v.field}: ${v.message}`;
 
-export type CollectionKey = Exclude<keyof CuratedDataset, 'schemaVersion' | 'buildDate'>;
-
 export type Collections = Pick<CuratedDataset, CollectionKey>;
 
-interface CollectionSpec {
-  key: CollectionKey;
-  file: string;
-  schema: z.ZodType;
-}
-
-/** Dataset file layout (design: "Dataset file layout"). */
-export const COLLECTION_SPECS: readonly CollectionSpec[] = [
-  { key: 'datasets', file: 'datasets.json', schema: DatasetDeclarationSchema },
-  { key: 'chokepoints', file: 'chokepoints.json', schema: ChokepointDeclarationSchema },
-  { key: 'commodities', file: 'commodities.json', schema: CommodityDeclarationSchema },
-  { key: 'economies', file: 'economies.json', schema: EconomyDeclarationSchema },
-  { key: 'sourceRecords', file: 'source-records.json', schema: SourceRecordSchema },
-  { key: 'historicalObservations', file: 'historical-observations.json', schema: HistoricalObservationSchema },
-  { key: 'dependencyShares', file: 'dependency-shares.json', schema: DependencyShareSchema },
-  { key: 'qualitativeDependencies', file: 'qualitative-dependencies.json', schema: QualitativeDependencySchema },
-  { key: 'graphNodes', file: 'graph-nodes.json', schema: GraphNodeSchema },
-  { key: 'graphEdges', file: 'graph-edges.json', schema: GraphEdgeSchema },
-];
+/* Dataset file layout (design: "Dataset file layout"): COLLECTION_SPECS, imported from src/data/files.ts. */
 
 const FILE_OF = Object.fromEntries(COLLECTION_SPECS.map((s) => [s.key, s.file])) as Record<CollectionKey, string>;
 

@@ -88,7 +88,7 @@ Rules that apply to every task:
     - **Validates: Requirements 4.3, 4.11, 4.14, 9.3, 17.2, 18.5**
     - Prerequisites: 2.2.
 
-  - [ ] 2.5 Implement the dataset loader and `DatasetProvider`
+  - [x] 2.5 Implement the dataset loader and `DatasetProvider`
     - Fetch each dataset file separately using `import.meta.env.BASE_URL`, validate with the Zod schemas, and expose `{ status, dataset, fileErrors }` per file.
     - Required observations without a Source_Record are excluded from engine input and flagged as "Source unavailable". An unreadable version or build date yields "Dataset version unavailable".
     - The Curated loader never fetches anything under `/data/demo/` (demo loading is task 2.9).

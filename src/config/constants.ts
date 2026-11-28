@@ -169,3 +169,11 @@ export const DEMO_VALUE_MULTIPLE = 10;
  * Matched case-insensitively as whole terms by build check D3.
  */
 export const DEMO_FORBIDDEN_SOURCE_NAMES = ['EIA', 'IEA', 'UNCTAD', 'Vortexa', 'Kpler', 'OPEC'] as const;
+
+/* ---------- Dataset availability texts ---------- */
+
+/** Shown in place of a value whose required Historical_Observation has no Source_Record (Req 4.10). */
+export const SOURCE_UNAVAILABLE_TEXT = 'Source unavailable';
+
+/** Footer text when the Curated_Dataset version or Build_Date cannot be read (Req 12.11; design: Error Handling). */
+export const DATASET_VERSION_UNAVAILABLE_TEXT = 'Dataset version unavailable';
