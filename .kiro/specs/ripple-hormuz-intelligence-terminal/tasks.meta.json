@@ -234,6 +234,18 @@
         "chatSessionId": "sess_714b93a1-26d7-4afb-a455-658a18f3575a",
         "timestamp": 1795871078711
       }
+    ],
+    "3.5 Create dataset release metadata": [
+      {
+        "executionId": "6fecc33b-2d60-4ce6-8831-6a22b7cd309e",
+        "chatSessionId": "sess_714b93a1-26d7-4afb-a455-658a18f3575a",
+        "timestamp": 1795871426938
+      },
+      {
+        "executionId": "6fecc33b-2d60-4ce6-8831-6a22b7cd309e",
+        "chatSessionId": "sess_714b93a1-26d7-4afb-a455-658a18f3575a",
+        "timestamp": 1795872429628
+      }
     ]
   }
 }

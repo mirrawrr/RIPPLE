@@ -35,7 +35,7 @@ import {
 } from '../src/config/constants.ts';
 import { DemoDatasetSchema, SchemaVersionFileSchema } from '../src/data/schema.ts';
 import type { CuratedDataset } from '../src/data/schema.ts';
-import { COLLECTION_SPECS, VERSION_FILE } from '../src/data/files.ts';
+import { COLLECTION_SPECS, CURRENT_SCHEMA_VERSION, VERSION_FILE } from '../src/data/files.ts';
 import type { CollectionKey, CollectionSpec } from '../src/data/files.ts';
 
 // Shared with the runtime loader (src/data/loader.ts); re-exported so existing importers keep working.
@@ -45,7 +45,7 @@ export type { CollectionKey };
 /* ---------- Public types and constants ---------- */
 
 /** Allow-list of supported schema versions (Req 17.2). Extend when a new version ships. */
-export const SUPPORTED_SCHEMA_VERSIONS: readonly string[] = ['1'];
+export const SUPPORTED_SCHEMA_VERSIONS: readonly string[] = [CURRENT_SCHEMA_VERSION];
 
 export interface Violation {
   file: string;

@@ -172,7 +172,7 @@ Rules that apply to every task:
     - _Requirements: 4.6, 4.7, 4.8, 7.17, 8.4, 11.5, 12.3_
     - _Design: Dataset file layout, Build-time validation pipeline (step 3)_
 
-  - [ ] 3.5 Create dataset release metadata
+  - [x] 3.5 Create dataset release metadata
     - Write `public/data/schema-version.json` with `schemaVersion` and `buildDate`, and add a script step that refreshes `buildDate` and the dataset version identifier at build time.
     - Acceptance: version identifier and build date are readable by the loader and shown by the footer later.
     - Prerequisites: 2.1.

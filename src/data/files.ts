@@ -32,6 +32,12 @@ export interface CollectionSpec {
 /** Name of the version file: `{ schemaVersion, buildDate }`. */
 export const VERSION_FILE = 'schema-version.json';
 
+/**
+ * The Schema_Version this build writes into `schema-version.json` (Task 3.5). Defined once here:
+ * scripts/refresh-release-metadata.ts writes it and scripts/validate-dataset.ts accepts it.
+ */
+export const CURRENT_SCHEMA_VERSION = '1';
+
 /** Curated collection files, in design order. */
 export const COLLECTION_SPECS: readonly CollectionSpec[] = [
   { key: 'datasets', file: 'datasets.json', schema: DatasetDeclarationSchema },
